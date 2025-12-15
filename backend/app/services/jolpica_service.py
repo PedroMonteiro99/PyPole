@@ -79,14 +79,15 @@ class JolpicaService:
     
     async def get_next_race(self) -> Optional[Dict[str, Any]]:
         """Get next upcoming race"""
-        from datetime import datetime
+        from datetime import date, datetime
         
         schedule = await self.get_schedule()
-        now = datetime.now()
+        today = date.today()
         
         for race in schedule:
-            race_date = datetime.fromisoformat(race["date"])
-            if race_date > now:
+            # Jolpica API returns dates in YYYY-MM-DD format (date-only string)
+            race_date = date.fromisoformat(race["date"])
+            if race_date >= today:
                 return race
         
         return None
