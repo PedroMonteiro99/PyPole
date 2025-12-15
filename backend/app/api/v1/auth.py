@@ -2,7 +2,7 @@
 from datetime import timedelta
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, Form, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -64,11 +64,11 @@ async def register(
 
 @router.post("/login", response_model=Token)
 async def login(
-    email: str,
-    password: str,
+    email: str = Form(...),
+    password: str = Form(...),
     db: AsyncSession = Depends(get_db),
 ) -> Any:
-    """Login and get access token"""
+    """Login and get access token with form-urlencoded data"""
     # Find user by email
     result = await db.execute(select(User).where(User.email == email))
     user = result.scalar_one_or_none()
