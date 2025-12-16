@@ -4,14 +4,14 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { LapTimesResponse, StintsResponse } from "@/lib/types";
-import { LapTimeChart } from "@/components/LapTimeChart";
+import { PositionChart } from "@/components/PositionChart";
+import { PitStopsChart } from "@/components/PitStopsChart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getCompoundColor, formatLapTime } from "@/lib/utils";
 
 export default function RaceAnalysisPage() {
   const [year, setYear] = useState(new Date().getFullYear());
@@ -116,24 +116,24 @@ export default function RaceAnalysisPage() {
 
       {/* Analysis Content */}
       {isSubmitted && (
-        <Tabs defaultValue="laps" className="space-y-6">
+        <Tabs defaultValue="positions" className="space-y-6">
           <TabsList>
-            <TabsTrigger value="laps">Lap Times</TabsTrigger>
+            <TabsTrigger value="positions">Position Changes</TabsTrigger>
             <TabsTrigger value="stints">Tire Strategy</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="laps">
+          <TabsContent value="positions">
             {lapsLoading ? (
               <Skeleton className="h-96 w-full" />
             ) : lapsData ? (
               <Card>
                 <CardHeader>
-                  <CardTitle>Lap Time Chart</CardTitle>
+                  <CardTitle>Position Changes Throughout the Race</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <LapTimeChart laps={lapsData.laps} drivers={drivers.slice(0, 5)} />
+                  <PositionChart laps={lapsData.laps} drivers={drivers.slice(0, 10)} />
                   <div className="mt-4 text-sm text-muted-foreground">
-                    Showing top 5 drivers. Total laps: {lapsData.total_laps}
+                    Showing top 10 drivers. Total laps: {lapsData.total_laps}
                   </div>
                 </CardContent>
               </Card>
@@ -154,60 +154,13 @@ export default function RaceAnalysisPage() {
             ) : stintsData ? (
               <Card>
                 <CardHeader>
-                  <CardTitle>Tire Strategy</CardTitle>
+                  <CardTitle>Pit Stops & Tire Strategy</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="border-b">
-                          <th className="px-4 py-3 text-left font-semibold">
-                            Driver
-                          </th>
-                          <th className="px-4 py-3 text-left font-semibold">
-                            Stint
-                          </th>
-                          <th className="px-4 py-3 text-left font-semibold">
-                            Compound
-                          </th>
-                          <th className="px-4 py-3 text-center font-semibold">
-                            Laps
-                          </th>
-                          <th className="px-4 py-3 text-right font-semibold">
-                            Avg Time
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {stintsData.stints.map((stint, index) => (
-                          <tr
-                            key={`${stint.driver}-${stint.stint}`}
-                            className="border-b hover:bg-muted/50"
-                          >
-                            <td className="px-4 py-3 font-medium">
-                              {stint.driver}
-                            </td>
-                            <td className="px-4 py-3">{stint.stint}</td>
-                            <td className="px-4 py-3">
-                              <span
-                                className={`inline-block px-2 py-1 rounded text-xs font-medium ${getCompoundColor(
-                                  stint.compound
-                                )}`}
-                              >
-                                {stint.compound || "Unknown"}
-                              </span>
-                            </td>
-                            <td className="px-4 py-3 text-center">
-                              {stint.num_laps} ({stint.start_lap}-{stint.end_lap})
-                            </td>
-                            <td className="px-4 py-3 text-right font-mono">
-                              {formatLapTime(stint.avg_lap_time)}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                  <PitStopsChart 
+                    stints={stintsData.stints} 
+                    maxLaps={lapsData?.total_laps || 60} 
+                  />
                 </CardContent>
               </Card>
             ) : (

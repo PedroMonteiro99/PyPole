@@ -132,6 +132,7 @@ export interface LapData {
   compound: string | null;
   tyre_life: number | null;
   stint: number;
+  position: number | null;
   is_personal_best: boolean;
 }
 
