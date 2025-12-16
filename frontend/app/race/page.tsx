@@ -59,16 +59,18 @@ export default function RaceAnalysisPage() {
         const lapNumbers = Array.from(
           new Set(lapsData.laps.map((lap) => lap.lap_number))
         ).sort((a, b) => a - b);
-        
+
         const lastLapNum = lapNumbers[lapNumbers.length - 1];
         const lastLapData = lapsData.laps.filter(
           (lap) => lap.lap_number === lastLapNum
         );
-        
+
         const sortedDrivers = lastLapData
           .filter((lap) => lap.lap_time_seconds !== null)
-          .sort((a, b) => (a.lap_time_seconds || 0) - (b.lap_time_seconds || 0));
-        
+          .sort(
+            (a, b) => (a.lap_time_seconds || 0) - (b.lap_time_seconds || 0)
+          );
+
         return sortedDrivers.map((lap, index) => ({
           driver: lap.driver,
           position: index + 1,
@@ -179,7 +181,13 @@ export default function RaceAnalysisPage() {
                 <CardContent>
                   <PitStopsChart
                     stints={stintsData.stints}
-                    maxLaps={lapsData?.total_laps || 60}
+                    maxLaps={
+                      Array.from(
+                        new Set(
+                          lapsData?.laps.map((lap) => lap.lap_number) || []
+                        )
+                      ).sort((a, b) => a - b).length || 60
+                    }
                     finalPositions={finalPositions}
                   />
                 </CardContent>

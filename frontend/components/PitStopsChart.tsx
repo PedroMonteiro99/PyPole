@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
 import { StintData } from "@/lib/types";
+import { useMemo } from "react";
 
 interface PitStopsChartProps {
   stints: StintData[];
@@ -9,7 +9,11 @@ interface PitStopsChartProps {
   finalPositions?: { driver: string; position: number }[];
 }
 
-export function PitStopsChart({ stints, maxLaps, finalPositions }: PitStopsChartProps) {
+export function PitStopsChart({
+  stints,
+  maxLaps,
+  finalPositions,
+}: PitStopsChartProps) {
   // Merge consecutive stints with the same compound
   interface MergedStint {
     driver: string;
@@ -31,14 +35,16 @@ export function PitStopsChart({ stints, maxLaps, finalPositions }: PitStopsChart
 
     // For each driver, merge consecutive stints with same compound
     const merged: Record<string, MergedStint[]> = {};
-    
+
     Object.keys(grouped).forEach((driver) => {
-      const driverStintsList = grouped[driver].sort((a, b) => a.start_lap - b.start_lap);
+      const driverStintsList = grouped[driver].sort(
+        (a, b) => a.start_lap - b.start_lap
+      );
       const mergedStints: MergedStint[] = [];
-      
+
       driverStintsList.forEach((stint) => {
         const lastMerged = mergedStints[mergedStints.length - 1];
-        
+
         // Check if we can merge with the previous stint
         if (
           lastMerged &&
@@ -59,15 +65,17 @@ export function PitStopsChart({ stints, maxLaps, finalPositions }: PitStopsChart
           });
         }
       });
-      
+
       merged[driver] = mergedStints;
     });
 
     // Sort drivers by final position if provided, otherwise alphabetically
     let sorted = Object.keys(merged);
-    
+
     if (finalPositions && finalPositions.length > 0) {
-      const positionMap = new Map(finalPositions.map(fp => [fp.driver, fp.position]));
+      const positionMap = new Map(
+        finalPositions.map((fp) => [fp.driver, fp.position])
+      );
       sorted = sorted.sort((a, b) => {
         const posA = positionMap.get(a) || 999;
         const posB = positionMap.get(b) || 999;
@@ -87,7 +95,11 @@ export function PitStopsChart({ stints, maxLaps, finalPositions }: PitStopsChart
     const comp = compound.toLowerCase();
 
     // Pirelli compound colors (official F1 style)
-    if (comp.includes("soft") && !comp.includes("medium") && !comp.includes("hard")) {
+    if (
+      comp.includes("soft") &&
+      !comp.includes("medium") &&
+      !comp.includes("hard")
+    ) {
       return { bg: "#E10600", text: "#FFFFFF", label: "SOFT", border: false };
     }
     if (comp.includes("medium")) {
@@ -97,13 +109,23 @@ export function PitStopsChart({ stints, maxLaps, finalPositions }: PitStopsChart
       return { bg: "#F0F0F0", text: "#000000", label: "HARD", border: true };
     }
     if (comp.includes("intermediate")) {
-      return { bg: "#2ECC71", text: "#FFFFFF", label: "INTERMEDIATE", border: false };
+      return {
+        bg: "#2ECC71",
+        text: "#FFFFFF",
+        label: "INTERMEDIATE",
+        border: false,
+      };
     }
     if (comp.includes("wet")) {
       return { bg: "#2E5CFF", text: "#FFFFFF", label: "WET", border: false };
     }
 
-    return { bg: "#9CA3AF", text: "#FFFFFF", label: compound.toUpperCase(), border: false };
+    return {
+      bg: "#9CA3AF",
+      text: "#FFFFFF",
+      label: compound.toUpperCase(),
+      border: false,
+    };
   };
 
   // Calculate each driver's actual last lap for proper width calculation
@@ -111,7 +133,7 @@ export function PitStopsChart({ stints, maxLaps, finalPositions }: PitStopsChart
     const maxLapsMap: Record<string, number> = {};
     Object.keys(driverStints).forEach((driver) => {
       const stints = driverStints[driver];
-      const lastLap = Math.max(...stints.map(s => s.end_lap));
+      const lastLap = Math.max(...stints.map((s) => s.end_lap));
       maxLapsMap[driver] = lastLap;
     });
     return maxLapsMap;
@@ -121,7 +143,9 @@ export function PitStopsChart({ stints, maxLaps, finalPositions }: PitStopsChart
     <div className="w-full bg-background">
       {/* Legend */}
       <div className="mb-6 flex flex-wrap items-center gap-4 pb-4 border-b">
-        <span className="text-sm font-semibold text-foreground">Tire Compounds:</span>
+        <span className="text-sm font-semibold text-foreground">
+          Tire Compounds:
+        </span>
         {[
           { bg: "#E10600", text: "#FFFFFF", label: "SOFT" },
           { bg: "#FCD116", text: "#000000", label: "MEDIUM" },
@@ -137,7 +161,9 @@ export function PitStopsChart({ stints, maxLaps, finalPositions }: PitStopsChart
                 border: compound.border ? "1px solid #999" : "none",
               }}
             />
-            <span className="text-xs font-medium text-muted-foreground">{compound.label}</span>
+            <span className="text-xs font-medium text-muted-foreground">
+              {compound.label}
+            </span>
           </div>
         ))}
       </div>
@@ -166,10 +192,15 @@ export function PitStopsChart({ stints, maxLaps, finalPositions }: PitStopsChart
             const driverStintsList = driverStints[driver];
             const pitStops = driverStintsList.length - 1;
             const driverLastLap = driverMaxLaps[driver];
-            
+
             // Get driver position
-            const driverPosition = finalPositions?.find(fp => fp.driver === driver)?.position || driverIndex + 1;
+            const driverPosition =
+              finalPositions?.find((fp) => fp.driver === driver)?.position ||
+              driverIndex + 1;
+
             const isRetired = driverLastLap < maxLaps;
+
+            console.log(driverLastLap, maxLaps, driver);
 
             return (
               <div
@@ -179,13 +210,15 @@ export function PitStopsChart({ stints, maxLaps, finalPositions }: PitStopsChart
                 {/* Position */}
                 <div className="w-16 flex-shrink-0 pr-2">
                   <span className="text-xs font-bold text-muted-foreground">
-                    {isRetired ? 'DNF' : `P${driverPosition}`}
+                    {isRetired ? "DNF" : `P${driverPosition}`}
                   </span>
                 </div>
 
                 {/* Driver Code */}
                 <div className="w-20 flex-shrink-0 pr-3">
-                  <span className="text-sm font-bold text-foreground">{driver}</span>
+                  <span className="text-sm font-bold text-foreground">
+                    {driver}
+                  </span>
                 </div>
 
                 {/* Tire Strategy Timeline */}
@@ -194,7 +227,8 @@ export function PitStopsChart({ stints, maxLaps, finalPositions }: PitStopsChart
                   {driverStintsList.map((stint, stintIndex) => {
                     const compoundStyle = getCompoundStyle(stint.compound);
                     // Calculate based on driver's own race distance for full width
-                    const leftPercent = ((stint.start_lap - 1) / driverLastLap) * 100;
+                    const leftPercent =
+                      ((stint.start_lap - 1) / driverLastLap) * 100;
                     const widthPercent = (stint.num_laps / driverLastLap) * 100;
 
                     return (
@@ -206,7 +240,9 @@ export function PitStopsChart({ stints, maxLaps, finalPositions }: PitStopsChart
                           width: `${widthPercent}%`,
                           backgroundColor: compoundStyle.bg,
                           color: compoundStyle.text,
-                          border: compoundStyle.border ? "1px solid #999" : "none",
+                          border: compoundStyle.border
+                            ? "1px solid #999"
+                            : "none",
                         }}
                       >
                         {/* Compound separator */}
@@ -225,18 +261,22 @@ export function PitStopsChart({ stints, maxLaps, finalPositions }: PitStopsChart
 
                         {/* Hover tooltip */}
                         <div className="invisible group-hover/stint:visible absolute -top-20 left-1/2 -translate-x-1/2 bg-popover text-popover-foreground border rounded-lg px-3 py-2 text-xs whitespace-nowrap shadow-xl z-30">
-                          <div className="font-bold text-sm mb-1">{compoundStyle.label}</div>
+                          <div className="font-bold text-sm mb-1">
+                            {compoundStyle.label}
+                          </div>
                           <div className="text-[11px] opacity-90">
                             Laps {stint.start_lap}-{stint.end_lap}
                           </div>
                           <div className="text-[11px] font-semibold mt-1">
-                            {stint.num_laps} lap{stint.num_laps !== 1 ? "s" : ""}
+                            {stint.num_laps} lap
+                            {stint.num_laps !== 1 ? "s" : ""}
                           </div>
-                          {isRetired && stintIndex === driverStintsList.length - 1 && (
-                            <div className="text-[10px] text-destructive font-semibold mt-1">
-                              DNF
-                            </div>
-                          )}
+                          {isRetired &&
+                            stintIndex === driverStintsList.length - 1 && (
+                              <div className="text-[10px] text-destructive font-semibold mt-1">
+                                DNF
+                              </div>
+                            )}
                         </div>
                       </div>
                     );
@@ -258,11 +298,15 @@ export function PitStopsChart({ stints, maxLaps, finalPositions }: PitStopsChart
       {/* Summary Stats */}
       <div className="mt-4 flex gap-6 text-sm text-muted-foreground">
         <div>
-          <span className="font-semibold">Total Drivers:</span> {sortedDrivers.length}
+          <span className="font-semibold">Total Drivers:</span>{" "}
+          {sortedDrivers.length}
         </div>
         <div>
           <span className="font-semibold">Total Pit Stops:</span>{" "}
-          {Object.values(driverStints).reduce((total, stints) => total + stints.length - 1, 0)}
+          {Object.values(driverStints).reduce(
+            (total, stints) => total + stints.length - 1,
+            0
+          )}
         </div>
         <div>
           <span className="font-semibold">Race Distance:</span> {maxLaps} laps
@@ -271,4 +315,3 @@ export function PitStopsChart({ stints, maxLaps, finalPositions }: PitStopsChart
     </div>
   );
 }
-
