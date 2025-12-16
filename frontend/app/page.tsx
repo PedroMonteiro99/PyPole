@@ -1,9 +1,6 @@
 "use client";
 
-import { useNextRace } from "@/hooks/useNextRace";
-import { useDriverStandings } from "@/hooks/useStandings";
 import { RaceCard } from "@/components/RaceCard";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   Card,
   CardContent,
@@ -11,8 +8,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Trophy, Calendar, Flag } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useNextRace } from "@/hooks/useNextRace";
+import { useDriverStandings } from "@/hooks/useStandings";
 import { getTeamColor } from "@/lib/utils";
+import { Calendar, Flag, Trophy } from "lucide-react";
 
 export default function HomePage() {
   const { data: nextRaceData, isLoading: nextRaceLoading } = useNextRace();
@@ -35,7 +35,9 @@ export default function HomePage() {
       <div className="grid gap-6 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Current Season</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Current Season
+            </CardTitle>
             <Flag className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -71,7 +73,9 @@ export default function HomePage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Championship Leader</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Championship Leader
+            </CardTitle>
             <Trophy className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -118,9 +122,7 @@ export default function HomePage() {
           <Card>
             <CardHeader>
               <CardTitle>Driver Standings</CardTitle>
-              <CardDescription>
-                Current season top 5 drivers
-              </CardDescription>
+              <CardDescription>Current season top 5 drivers</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -162,4 +164,3 @@ export default function HomePage() {
     </div>
   );
 }
-
