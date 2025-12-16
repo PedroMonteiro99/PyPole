@@ -1,7 +1,7 @@
 "use client";
 
+import { useMemo } from "react";
 import { StintData } from "@/lib/types";
-import { getCompoundColor } from "@/lib/utils";
 
 interface PitStopsChartProps {
   stints: StintData[];
@@ -9,159 +9,198 @@ interface PitStopsChartProps {
 }
 
 export function PitStopsChart({ stints, maxLaps }: PitStopsChartProps) {
-  // Group stints by driver
-  const driverStints = stints.reduce((acc, stint) => {
-    if (!acc[stint.driver]) {
-      acc[stint.driver] = [];
-    }
-    acc[stint.driver].push(stint);
-    return acc;
-  }, {} as Record<string, StintData[]>);
+  // Group stints by driver and calculate positions
+  const { driverStints, sortedDrivers } = useMemo(() => {
+    const grouped = stints.reduce((acc, stint) => {
+      if (!acc[stint.driver]) {
+        acc[stint.driver] = [];
+      }
+      acc[stint.driver].push(stint);
+      return acc;
+    }, {} as Record<string, StintData[]>);
 
-  // Sort drivers by their final position (sum of points, or alphabetically)
-  const sortedDrivers = Object.keys(driverStints).sort();
+    // Sort drivers alphabetically for now (could be by race position if available)
+    const sorted = Object.keys(grouped).sort();
 
-  // Calculate the width scale (percentage per lap)
-  const lapWidth = 100 / maxLaps;
+    return { driverStints: grouped, sortedDrivers: sorted };
+  }, [stints]);
 
-  // Get compound display info
-  const getCompoundInfo = (compound: string | null) => {
-    if (!compound) return { color: "bg-gray-400", label: "UNK" };
-    
+  // Get compound styling
+  const getCompoundStyle = (compound: string | null) => {
+    if (!compound) return { bg: "#9CA3AF", text: "#FFFFFF", label: "UNKNOWN" };
+
     const comp = compound.toLowerCase();
-    
+
+    // Pirelli compound colors (official F1 style)
     if (comp.includes("soft") && !comp.includes("medium") && !comp.includes("hard")) {
-      return { color: "bg-red-500", label: "SOFT" };
+      return { bg: "#E10600", text: "#FFFFFF", label: "SOFT", border: false };
     }
     if (comp.includes("medium")) {
-      return { color: "bg-yellow-400", label: "MEDIUM" };
+      return { bg: "#FCD116", text: "#000000", label: "MEDIUM", border: false };
     }
     if (comp.includes("hard")) {
-      return { color: "bg-gray-100 border border-gray-400", label: "HARD", textDark: true };
+      return { bg: "#F0F0F0", text: "#000000", label: "HARD", border: true };
     }
     if (comp.includes("intermediate")) {
-      return { color: "bg-green-500", label: "INT" };
+      return { bg: "#2ECC71", text: "#FFFFFF", label: "INTERMEDIATE", border: false };
     }
     if (comp.includes("wet")) {
-      return { color: "bg-blue-500", label: "WET" };
+      return { bg: "#2E5CFF", text: "#FFFFFF", label: "WET", border: false };
     }
-    
-    return { color: "bg-gray-400", label: compound.slice(0, 3).toUpperCase() };
+
+    return { bg: "#9CA3AF", text: "#FFFFFF", label: compound.toUpperCase(), border: false };
   };
 
+  // Generate lap markers (every 5 laps)
+  const lapMarkers = useMemo(() => {
+    const markers = [];
+    for (let i = 0; i <= maxLaps; i += 5) {
+      markers.push(i);
+    }
+    return markers;
+  }, [maxLaps]);
+
   return (
-    <div className="space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold">Pit Stops & Tire Strategy</h3>
-        <div className="flex gap-4 text-sm">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-4 bg-red-500 rounded"></div>
-            <span>Soft</span>
+    <div className="w-full bg-background">
+      {/* Legend */}
+      <div className="mb-6 flex flex-wrap items-center gap-4 pb-4 border-b">
+        <span className="text-sm font-semibold text-foreground">Tire Compounds:</span>
+        {[
+          { bg: "#E10600", text: "#FFFFFF", label: "SOFT" },
+          { bg: "#FCD116", text: "#000000", label: "MEDIUM" },
+          { bg: "#F0F0F0", text: "#000000", label: "HARD", border: true },
+          { bg: "#2ECC71", text: "#FFFFFF", label: "INTERMEDIATE" },
+          { bg: "#2E5CFF", text: "#FFFFFF", label: "WET" },
+        ].map((compound) => (
+          <div key={compound.label} className="flex items-center gap-2">
+            <div
+              className="w-8 h-5 rounded-sm"
+              style={{
+                backgroundColor: compound.bg,
+                border: compound.border ? "1px solid #999" : "none",
+              }}
+            />
+            <span className="text-xs font-medium text-muted-foreground">{compound.label}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-4 bg-yellow-400 rounded"></div>
-            <span>Medium</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-4 bg-gray-100 border border-gray-400 rounded"></div>
-            <span>Hard</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-4 bg-green-500 rounded"></div>
-            <span>Intermediate</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-4 bg-blue-500 rounded"></div>
-            <span>Wet</span>
-          </div>
-        </div>
+        ))}
       </div>
 
-      {/* Lap number scale */}
-      <div className="flex items-center gap-2">
-        <div className="w-24 flex-shrink-0"></div>
-        <div className="flex-1 relative h-6 border-b border-border">
-          {Array.from({ length: Math.ceil(maxLaps / 10) + 1 }, (_, i) => i * 10)
-            .filter((lap) => lap <= maxLaps)
-            .map((lap) => (
+      {/* Chart Container */}
+      <div className="space-y-0 bg-card rounded-lg border p-4">
+        {/* Header Row */}
+        <div className="flex items-center mb-2">
+          <div className="w-20 flex-shrink-0 text-xs font-bold text-muted-foreground uppercase">
+            Driver
+          </div>
+          <div className="flex-1 relative h-6">
+            {/* Lap number markers */}
+            {lapMarkers.map((lap) => (
               <div
                 key={lap}
-                className="absolute text-xs text-muted-foreground"
+                className="absolute flex flex-col items-center"
                 style={{ left: `${(lap / maxLaps) * 100}%` }}
               >
-                {lap}
+                <div className="text-[10px] font-medium text-muted-foreground">{lap}</div>
+                <div className="w-px h-2 bg-border" />
               </div>
             ))}
+          </div>
+          <div className="w-16 flex-shrink-0 text-xs font-bold text-muted-foreground text-right uppercase">
+            Stops
+          </div>
         </div>
-        <div className="w-12 flex-shrink-0 text-right text-xs text-muted-foreground">
-          Used
-        </div>
-      </div>
 
-      {/* Driver rows */}
-      <div className="space-y-1">
-        {sortedDrivers.map((driver) => {
-          const driverStintsList = driverStints[driver].sort(
-            (a, b) => a.stint - b.stint
-          );
-          
-          // Calculate total laps used
-          const totalLapsUsed = driverStintsList.reduce(
-            (sum, stint) => sum + stint.num_laps,
-            0
-          );
+        {/* Driver Rows */}
+        <div className="space-y-[2px]">
+          {sortedDrivers.map((driver, driverIndex) => {
+            const driverStintsList = driverStints[driver].sort((a, b) => a.stint - b.stint);
+            const pitStops = driverStintsList.length - 1;
 
-          return (
-            <div key={driver} className="flex items-center gap-2">
-              {/* Driver name */}
-              <div className="w-24 flex-shrink-0 text-sm font-medium truncate">
-                {driver}
-              </div>
+            return (
+              <div
+                key={driver}
+                className="flex items-center group hover:bg-muted/50 transition-colors"
+              >
+                {/* Driver Code */}
+                <div className="w-20 flex-shrink-0 pr-2">
+                  <span className="text-sm font-bold text-foreground">{driver}</span>
+                </div>
 
-              {/* Stint bars */}
-              <div className="flex-1 relative h-10 bg-muted/30 rounded">
-                {driverStintsList.map((stint, index) => {
-                  const compoundInfo = getCompoundInfo(stint.compound);
-                  const startPercent = ((stint.start_lap - 1) / maxLaps) * 100;
-                  const widthPercent = (stint.num_laps / maxLaps) * 100;
-
-                  return (
+                {/* Tire Strategy Timeline */}
+                <div className="flex-1 relative h-8">
+                  {/* Background grid lines */}
+                  {lapMarkers.map((lap) => (
                     <div
-                      key={`${driver}-${stint.stint}`}
-                      className={`absolute h-full flex items-center justify-center ${compoundInfo.color} ${
-                        compoundInfo.textDark ? "text-gray-800" : "text-white"
-                      } text-xs font-bold transition-all hover:opacity-80 cursor-pointer`}
-                      style={{
-                        left: `${startPercent}%`,
-                        width: `${widthPercent}%`,
-                      }}
-                      title={`${compoundInfo.label}: Laps ${stint.start_lap}-${stint.end_lap} (${stint.num_laps} laps)`}
-                    >
-                      {stint.num_laps > 3 && (
-                        <span className="drop-shadow-sm">{stint.num_laps}</span>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
+                      key={lap}
+                      className="absolute h-full w-px bg-border/30"
+                      style={{ left: `${(lap / maxLaps) * 100}%` }}
+                    />
+                  ))}
 
-              {/* Total laps used */}
-              <div className="w-12 flex-shrink-0 text-right text-sm text-muted-foreground">
-                {totalLapsUsed}
+                  {/* Stint bars */}
+                  {driverStintsList.map((stint) => {
+                    const compoundStyle = getCompoundStyle(stint.compound);
+                    const leftPercent = ((stint.start_lap - 1) / maxLaps) * 100;
+                    const widthPercent = (stint.num_laps / maxLaps) * 100;
+
+                    return (
+                      <div
+                        key={`${driver}-stint-${stint.stint}`}
+                        className="absolute top-0 h-full group/stint cursor-pointer transition-all hover:brightness-110 hover:z-10"
+                        style={{
+                          left: `${leftPercent}%`,
+                          width: `${widthPercent}%`,
+                          backgroundColor: compoundStyle.bg,
+                          color: compoundStyle.text,
+                          border: compoundStyle.border ? "1px solid #999" : "none",
+                        }}
+                        title={`${compoundStyle.label}: Lap ${stint.start_lap}-${stint.end_lap} (${stint.num_laps} laps)`}
+                      >
+                        {/* Lap count */}
+                        {stint.num_laps > 2 && (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <span className="text-[11px] font-bold tracking-tight drop-shadow-sm">
+                              {stint.num_laps}
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Hover tooltip */}
+                        <div className="invisible group-hover/stint:visible absolute -top-12 left-1/2 -translate-x-1/2 bg-popover text-popover-foreground border rounded px-2 py-1 text-xs whitespace-nowrap shadow-lg z-20">
+                          <div className="font-semibold">{compoundStyle.label}</div>
+                          <div className="text-[10px]">
+                            Laps {stint.start_lap}-{stint.end_lap} ({stint.num_laps} laps)
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Pit Stop Count */}
+                <div className="w-16 flex-shrink-0 text-center">
+                  <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-muted text-foreground text-xs font-bold">
+                    {pitStops}
+                  </span>
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
 
-      {/* Total pit stops count */}
-      <div className="text-sm text-muted-foreground mt-4">
-        <span className="font-semibold">Total Pit Stops:</span>{" "}
-        {Object.values(driverStints).reduce(
-          (total, stints) => total + stints.length - 1,
-          0
-        )}
+      {/* Summary Stats */}
+      <div className="mt-4 flex gap-6 text-sm text-muted-foreground">
+        <div>
+          <span className="font-semibold">Total Drivers:</span> {sortedDrivers.length}
+        </div>
+        <div>
+          <span className="font-semibold">Total Pit Stops:</span>{" "}
+          {Object.values(driverStints).reduce((total, stints) => total + stints.length - 1, 0)}
+        </div>
+        <div>
+          <span className="font-semibold">Race Distance:</span> {maxLaps} laps
+        </div>
       </div>
     </div>
   );

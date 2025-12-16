@@ -1,17 +1,17 @@
 "use client";
 
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { api } from "@/lib/api";
-import { LapTimesResponse, StintsResponse } from "@/lib/types";
-import { PositionChart } from "@/components/PositionChart";
 import { PitStopsChart } from "@/components/PitStopsChart";
+import { PositionChart } from "@/components/PositionChart";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { api } from "@/lib/api";
+import { LapTimesResponse, StintsResponse } from "@/lib/types";
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 
 export default function RaceAnalysisPage() {
   const [year, setYear] = useState(new Date().getFullYear());
@@ -131,10 +131,7 @@ export default function RaceAnalysisPage() {
                   <CardTitle>Position Changes Throughout the Race</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <PositionChart laps={lapsData.laps} drivers={drivers.slice(0, 10)} />
-                  <div className="mt-4 text-sm text-muted-foreground">
-                    Showing top 10 drivers. Total laps: {lapsData.total_laps}
-                  </div>
+                  <PositionChart laps={lapsData.laps} />
                 </CardContent>
               </Card>
             ) : (
@@ -157,9 +154,9 @@ export default function RaceAnalysisPage() {
                   <CardTitle>Pit Stops & Tire Strategy</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <PitStopsChart 
-                    stints={stintsData.stints} 
-                    maxLaps={lapsData?.total_laps || 60} 
+                  <PitStopsChart
+                    stints={stintsData.stints}
+                    maxLaps={lapsData?.total_laps || 60}
                   />
                 </CardContent>
               </Card>
@@ -178,4 +175,3 @@ export default function RaceAnalysisPage() {
     </div>
   );
 }
-
