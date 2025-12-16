@@ -53,6 +53,29 @@ export default function RaceAnalysisPage() {
     ? Array.from(new Set(lapsData.laps.map((lap) => lap.driver)))
     : [];
 
+  // Calculate final positions for pit stops chart
+  const finalPositions = lapsData?.laps
+    ? (() => {
+        const lapNumbers = Array.from(
+          new Set(lapsData.laps.map((lap) => lap.lap_number))
+        ).sort((a, b) => a - b);
+        
+        const lastLapNum = lapNumbers[lapNumbers.length - 1];
+        const lastLapData = lapsData.laps.filter(
+          (lap) => lap.lap_number === lastLapNum
+        );
+        
+        const sortedDrivers = lastLapData
+          .filter((lap) => lap.lap_time_seconds !== null)
+          .sort((a, b) => (a.lap_time_seconds || 0) - (b.lap_time_seconds || 0));
+        
+        return sortedDrivers.map((lap, index) => ({
+          driver: lap.driver,
+          position: index + 1,
+        }));
+      })()
+    : [];
+
   return (
     <div className="space-y-8">
       <div>
@@ -157,6 +180,7 @@ export default function RaceAnalysisPage() {
                   <PitStopsChart
                     stints={stintsData.stints}
                     maxLaps={lapsData?.total_laps || 60}
+                    finalPositions={finalPositions}
                   />
                 </CardContent>
               </Card>
