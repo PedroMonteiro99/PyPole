@@ -1,6 +1,7 @@
 """Jolpica F1 service for schedule, standings, and results"""
 
 import asyncio
+from datetime import date
 from typing import Any, Dict, List, Optional
 
 import httpx
@@ -80,17 +81,38 @@ class JolpicaService:
             raise
 
     async def get_next_race(self) -> Optional[Dict[str, Any]]:
-        """Get next upcoming race"""
-        from datetime import date, datetime
+        """Get next upcoming race (checks next season if current season is over)"""
 
-        schedule = await self.get_schedule()
+        current_season = await self.get_current_season()
+        schedule = await self.get_schedule(current_season)
         today = date.today()
 
+        # Check current season first
         for race in schedule:
             # Jolpica API returns dates in YYYY-MM-DD format (date-only string)
             race_date = date.fromisoformat(race["date"])
             if race_date >= today:
                 return race
+
+        # If no races found in current season, check next season
+        try:
+            next_season = current_season + 1
+            next_schedule = await self.get_schedule(next_season)
+
+            if next_schedule:
+                # Return the first race of next season
+                first_race = next_schedule[0].copy()
+                # Add a flag to indicate it's from next season
+                first_race["isNextSeason"] = True
+                first_race["season"] = str(next_season)
+                logger.info(
+                    "next_race_from_next_season",
+                    season=next_season,
+                    race=first_race.get("raceName"),
+                )
+                return first_race
+        except Exception as e:
+            logger.warning("failed_to_fetch_next_season_schedule", season=next_season, error=str(e))
 
         return None
 
