@@ -1,4 +1,5 @@
 """Jolpica F1 API endpoints for schedule and standings"""
+
 from typing import Any, List, Optional
 
 from fastapi import APIRouter, HTTPException, Query
@@ -44,7 +45,7 @@ async def get_season_schedule(season: int) -> Any:
 
 @router.get("/standings/drivers")
 async def get_driver_standings(
-    season: Optional[int] = Query(None, description="Season year (defaults to current)")
+    season: Optional[int] = Query(None, description="Season year (defaults to current)"),
 ) -> Any:
     """Get driver standings"""
     try:
@@ -52,14 +53,12 @@ async def get_driver_standings(
         display_season = season or await jolpica_service.get_current_season()
         return {"season": display_season, "standings": standings}
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Failed to fetch driver standings: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to fetch driver standings: {str(e)}")
 
 
 @router.get("/standings/constructors")
 async def get_constructor_standings(
-    season: Optional[int] = Query(None, description="Season year (defaults to current)")
+    season: Optional[int] = Query(None, description="Season year (defaults to current)"),
 ) -> Any:
     """Get constructor standings"""
     try:
@@ -80,8 +79,7 @@ async def get_race_results(season: int, round: int) -> Any:
         return {"season": season, "round": round, "race": results}
     except Exception as e:
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to fetch results for {season} round {round}: {str(e)}"
+            status_code=500, detail=f"Failed to fetch results for {season} round {round}: {str(e)}"
         )
 
 
@@ -94,6 +92,5 @@ async def get_qualifying_results(season: int, round: int) -> Any:
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail=f"Failed to fetch qualifying for {season} round {round}: {str(e)}"
+            detail=f"Failed to fetch qualifying for {season} round {round}: {str(e)}",
         )
-
