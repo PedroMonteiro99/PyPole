@@ -1,19 +1,19 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
-import { LapData } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { LapData } from "@/lib/types";
+import { useMemo, useState } from "react";
+import {
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 interface PositionChartProps {
   laps: LapData[];
@@ -21,26 +21,26 @@ interface PositionChartProps {
 
 export function PositionChart({ laps }: PositionChartProps) {
   // Get unique lap numbers
-  const lapNumbers = Array.from(new Set(laps.map((lap) => lap.lap_number))).sort(
-    (a, b) => a - b
-  );
+  const lapNumbers = Array.from(
+    new Set(laps.map((lap) => lap.lap_number))
+  ).sort((a, b) => a - b);
 
   // Calculate cumulative positions for each driver across all laps
-  const { chartData, allDrivers, topDrivers } = useMemo(() => {
+  const { chartData, allDrivers, finalPositions } = useMemo(() => {
     const data = lapNumbers.map((lapNum) => {
       const lapsInThisLap = laps.filter((lap) => lap.lap_number === lapNum);
-      
+
       // Sort by cumulative time to determine real positions
       const sortedLaps = lapsInThisLap
         .filter((lap) => lap.lap_time_seconds !== null)
         .sort((a, b) => (a.lap_time_seconds || 0) - (b.lap_time_seconds || 0));
-      
+
       const dataPoint: any = { lap: lapNum };
-      
+
       sortedLaps.forEach((lap, index) => {
         dataPoint[lap.driver] = index + 1;
       });
-      
+
       return dataPoint;
     });
 
@@ -49,30 +49,29 @@ export function PositionChart({ laps }: PositionChartProps) {
 
     // Calculate final positions (last lap)
     const finalLap = data[data.length - 1];
-    const finalPositions = drivers
+    const positions = drivers
       .map((driver) => ({
         driver,
         position: finalLap[driver] || 999,
       }))
       .sort((a, b) => a.position - b.position);
 
-    // Get top 5 drivers by final position
-    const top5 = finalPositions.slice(0, 5).map((d) => d.driver);
-
     return {
       chartData: data,
       allDrivers: drivers.sort(),
-      topDrivers: top5,
+      finalPositions: positions,
     };
   }, [laps, lapNumbers]);
 
-  const [selectedDrivers, setSelectedDrivers] = useState<string[]>(topDrivers);
+  const [selectedDrivers, setSelectedDrivers] = useState<string[]>(
+    finalPositions.slice(0, 5).map((d) => d.driver)
+  );
   const [numDrivers, setNumDrivers] = useState(5);
 
   // Update selected drivers when numDrivers changes
   const handleNumDriversChange = (num: number) => {
     setNumDrivers(num);
-    setSelectedDrivers(topDrivers.slice(0, num));
+    setSelectedDrivers(finalPositions.slice(0, num).map((d) => d.driver));
   };
 
   // Toggle individual driver
@@ -109,7 +108,10 @@ export function PositionChart({ laps }: PositionChartProps) {
   };
 
   const getDriverColor = (driver: string, index: number) => {
-    return driverColors[driver] || `hsl(${(index * 360) / allDrivers.length}, 70%, 50%)`;
+    return (
+      driverColors[driver] ||
+      `hsl(${(index * 360) / allDrivers.length}, 70%, 50%)`
+    );
   };
 
   return (
@@ -119,7 +121,7 @@ export function PositionChart({ laps }: PositionChartProps) {
         <div className="flex items-center gap-4">
           <Label className="text-sm font-medium">Show top:</Label>
           <div className="flex gap-2">
-            {[3, 5, 10, 15].map((num) => (
+            {[3, 5, 10].map((num) => (
               <Button
                 key={num}
                 variant={numDrivers === num ? "default" : "outline"}
@@ -132,13 +134,16 @@ export function PositionChart({ laps }: PositionChartProps) {
           </div>
         </div>
         <div className="text-sm text-muted-foreground">
-          {selectedDrivers.length} driver{selectedDrivers.length !== 1 ? "s" : ""} selected
+          {selectedDrivers.length} driver
+          {selectedDrivers.length !== 1 ? "s" : ""} selected
         </div>
       </div>
 
       {/* Driver Selection Grid */}
       <div className="border rounded-lg p-4">
-        <Label className="text-sm font-medium mb-3 block">Select Drivers:</Label>
+        <Label className="text-sm font-medium mb-3 block">
+          Select Drivers:
+        </Label>
         <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
           {allDrivers.map((driver) => (
             <Button
@@ -160,7 +165,11 @@ export function PositionChart({ laps }: PositionChartProps) {
           <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
           <XAxis
             dataKey="lap"
-            label={{ value: "Lap Number", position: "insideBottom", offset: -5 }}
+            label={{
+              value: "Lap Number",
+              position: "insideBottom",
+              offset: -5,
+            }}
             className="text-xs"
           />
           <YAxis
@@ -193,4 +202,3 @@ export function PositionChart({ laps }: PositionChartProps) {
     </div>
   );
 }
-

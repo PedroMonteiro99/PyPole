@@ -9,7 +9,16 @@ interface PitStopsChartProps {
 }
 
 export function PitStopsChart({ stints, maxLaps }: PitStopsChartProps) {
-  // Group stints by driver and calculate positions
+  // Merge consecutive stints with the same compound
+  interface MergedStint {
+    driver: string;
+    compound: string | null;
+    start_lap: number;
+    end_lap: number;
+    num_laps: number;
+  }
+
+  // Group stints by driver and merge consecutive stints with same compound
   const { driverStints, sortedDrivers } = useMemo(() => {
     const grouped = stints.reduce((acc, stint) => {
       if (!acc[stint.driver]) {
@@ -19,10 +28,44 @@ export function PitStopsChart({ stints, maxLaps }: PitStopsChartProps) {
       return acc;
     }, {} as Record<string, StintData[]>);
 
-    // Sort drivers alphabetically for now (could be by race position if available)
-    const sorted = Object.keys(grouped).sort();
+    // For each driver, merge consecutive stints with same compound
+    const merged: Record<string, MergedStint[]> = {};
+    
+    Object.keys(grouped).forEach((driver) => {
+      const driverStintsList = grouped[driver].sort((a, b) => a.start_lap - b.start_lap);
+      const mergedStints: MergedStint[] = [];
+      
+      driverStintsList.forEach((stint) => {
+        const lastMerged = mergedStints[mergedStints.length - 1];
+        
+        // Check if we can merge with the previous stint
+        if (
+          lastMerged &&
+          lastMerged.compound === stint.compound &&
+          lastMerged.end_lap + 1 === stint.start_lap
+        ) {
+          // Merge with previous stint
+          lastMerged.end_lap = stint.end_lap;
+          lastMerged.num_laps = lastMerged.end_lap - lastMerged.start_lap + 1;
+        } else {
+          // Create new merged stint
+          mergedStints.push({
+            driver: stint.driver,
+            compound: stint.compound,
+            start_lap: stint.start_lap,
+            end_lap: stint.end_lap,
+            num_laps: stint.num_laps,
+          });
+        }
+      });
+      
+      merged[driver] = mergedStints;
+    });
 
-    return { driverStints: grouped, sortedDrivers: sorted };
+    // Sort drivers alphabetically for now (could be by race position if available)
+    const sorted = Object.keys(merged).sort();
+
+    return { driverStints: merged, sortedDrivers: sorted };
   }, [stints]);
 
   // Get compound styling
@@ -113,7 +156,7 @@ export function PitStopsChart({ stints, maxLaps }: PitStopsChartProps) {
         {/* Driver Rows */}
         <div className="space-y-[2px]">
           {sortedDrivers.map((driver, driverIndex) => {
-            const driverStintsList = driverStints[driver].sort((a, b) => a.stint - b.stint);
+            const driverStintsList = driverStints[driver];
             const pitStops = driverStintsList.length - 1;
 
             return (
@@ -138,21 +181,22 @@ export function PitStopsChart({ stints, maxLaps }: PitStopsChartProps) {
                   ))}
 
                   {/* Stint bars */}
-                  {driverStintsList.map((stint) => {
+                  {driverStintsList.map((stint, stintIndex) => {
                     const compoundStyle = getCompoundStyle(stint.compound);
                     const leftPercent = ((stint.start_lap - 1) / maxLaps) * 100;
                     const widthPercent = (stint.num_laps / maxLaps) * 100;
 
                     return (
                       <div
-                        key={`${driver}-stint-${stint.stint}`}
-                        className="absolute top-0 h-full group/stint cursor-pointer transition-all hover:brightness-110 hover:z-10"
+                        key={`${driver}-stint-${stintIndex}`}
+                        className="absolute top-0 h-full group/stint cursor-pointer transition-all hover:brightness-110 hover:z-10 border-r-2 border-background"
                         style={{
                           left: `${leftPercent}%`,
                           width: `${widthPercent}%`,
                           backgroundColor: compoundStyle.bg,
                           color: compoundStyle.text,
                           border: compoundStyle.border ? "1px solid #999" : "none",
+                          borderRight: stintIndex < driverStintsList.length - 1 ? "2px solid hsl(var(--background))" : "none",
                         }}
                         title={`${compoundStyle.label}: Lap ${stint.start_lap}-${stint.end_lap} (${stint.num_laps} laps)`}
                       >
@@ -166,10 +210,13 @@ export function PitStopsChart({ stints, maxLaps }: PitStopsChartProps) {
                         )}
 
                         {/* Hover tooltip */}
-                        <div className="invisible group-hover/stint:visible absolute -top-12 left-1/2 -translate-x-1/2 bg-popover text-popover-foreground border rounded px-2 py-1 text-xs whitespace-nowrap shadow-lg z-20">
-                          <div className="font-semibold">{compoundStyle.label}</div>
-                          <div className="text-[10px]">
-                            Laps {stint.start_lap}-{stint.end_lap} ({stint.num_laps} laps)
+                        <div className="invisible group-hover/stint:visible absolute -top-16 left-1/2 -translate-x-1/2 bg-popover text-popover-foreground border rounded px-3 py-2 text-xs whitespace-nowrap shadow-lg z-20">
+                          <div className="font-bold text-sm mb-1">{compoundStyle.label}</div>
+                          <div className="text-[11px] opacity-90">
+                            Laps {stint.start_lap}-{stint.end_lap}
+                          </div>
+                          <div className="text-[11px] font-semibold mt-1">
+                            {stint.num_laps} lap{stint.num_laps !== 1 ? "s" : ""}
                           </div>
                         </div>
                       </div>
