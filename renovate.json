@@ -1,6 +1,66 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended"
-  ]
+  "extends": ["config:best-practices"],
+  "timezone": "Europe/Lisbon",
+  "labels": ["dependencies"],
+  "assignees": ["PedroMonteiro99"],
+  "reviewers": ["PedroMonteiro99"],
+  "rebaseWhen": "conflicted",
+  "semanticCommits": "enabled",
+  "dependencyDashboard": true,
+  "dependencyDashboardTitle": "📦 Dependency Dashboard",
+  "packageRules": [
+    {
+      "description": "Backend (FastAPI) dependencies",
+      "matchFileNames": ["backend/**"],
+      "addLabels": ["backend"],
+      "groupName": "Backend dependencies",
+      "commitMessageTopic": "update {{depName}} to v{{newVersion}}",
+      "commitMessageSuffix": "(backend)",
+      "schedule": ["before 10am on Monday"]
+    },
+    {
+      "description": "Frontend (Next.js) dependencies",
+      "matchFileNames": ["frontend/**"],
+      "addLabels": ["frontend"],
+      "groupName": "Frontend dependencies",
+      "commitMessageTopic": "update {{depName}} to v{{newVersion}}",
+      "commitMessageSuffix": "(frontend)",
+      "schedule": ["before 10am on Monday"]
+    },
+    {
+      "description": "Group TypeScript type definitions",
+      "matchPackageNames": ["@types/**"],
+      "groupName": "TypeScript definitions",
+      "addLabels": ["types"],
+      "commitMessageTopic": "update TypeScript definitions"
+    },
+    {
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["patch"],
+      "automerge": true,
+      "automergeType": "pr",
+      "addLabels": ["automerge"]
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "addLabels": ["github-actions"]
+    },
+    {
+      "matchUpdateTypes": ["major"],
+      "addLabels": ["major-update"],
+      "dependencyDashboardApproval": true,
+      "commitMessageTopic": "{{depName}} to v{{newVersion}}",
+      "commitMessageSuffix": "(MAJOR) ⬆️"
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "enabled": true
+  },
+  "osvVulnerabilityAlerts": true,
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 11am on Monday"]
+  },
+  "forkProcessing": "enabled"
 }
