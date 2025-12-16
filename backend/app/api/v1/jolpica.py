@@ -18,18 +18,6 @@ async def get_current_schedule() -> Any:
         raise HTTPException(status_code=500, detail=f"Failed to fetch schedule: {str(e)}")
 
 
-@router.get("/schedule/{season}")
-async def get_season_schedule(season: int) -> Any:
-    """Get schedule for a specific season"""
-    try:
-        schedule = await jolpica_service.get_schedule(season)
-        return {"season": season, "races": schedule}
-    except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Failed to fetch schedule for {season}: {str(e)}"
-        )
-
-
 @router.get("/schedule/next")
 async def get_next_race() -> Any:
     """Get next upcoming race"""
@@ -40,6 +28,18 @@ async def get_next_race() -> Any:
         return {"race": next_race}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch next race: {str(e)}")
+
+
+@router.get("/schedule/{season}")
+async def get_season_schedule(season: int) -> Any:
+    """Get schedule for a specific season"""
+    try:
+        schedule = await jolpica_service.get_schedule(season)
+        return {"season": season, "races": schedule}
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Failed to fetch schedule for {season}: {str(e)}"
+        )
 
 
 @router.get("/standings/drivers")
