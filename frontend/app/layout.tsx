@@ -1,16 +1,19 @@
+import { Sidebar } from "@/components/Sidebar";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { ReactQueryProvider } from "@/providers/ReactQueryProvider";
+import { ThemeProvider } from "@/providers/ThemeProvider";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/providers/ThemeProvider";
-import { ReactQueryProvider } from "@/providers/ReactQueryProvider";
-import { Sidebar } from "@/components/Sidebar";
-import { ThemeToggle } from "@/components/ThemeToggle";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "PyPole - F1 Analytics",
   description: "Formula 1 race data and analytics platform",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({
@@ -45,4 +48,3 @@ export default function RootLayout({
     </html>
   );
 }
-

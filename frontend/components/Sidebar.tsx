@@ -1,16 +1,10 @@
 "use client";
 
+import { cn } from "@/lib/utils";
+import { BarChart3, Calendar, Home, Settings, Trophy } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  Home,
-  Calendar,
-  Trophy,
-  BarChart3,
-  Settings,
-  Flag,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
+import { F1Logo } from "./F1Logo";
 
 const menuItems = [
   { href: "/", label: "Dashboard", icon: Home },
@@ -28,14 +22,15 @@ export function Sidebar() {
       <div className="flex h-full flex-col">
         {/* Logo */}
         <div className="flex h-16 items-center border-b px-6">
-          <Flag className="h-6 w-6 text-primary mr-2" />
+          <F1Logo className="h-6 w-auto text-primary mr-2" />
           <span className="text-xl font-bold">PyPole</span>
         </div>
 
         {/* Navigation */}
         <nav className="flex-1 space-y-1 px-3 py-4">
           {menuItems.map((item) => {
-            const isActive = pathname === item.href || 
+            const isActive =
+              pathname === item.href ||
               (item.href !== "/" && pathname.startsWith(item.href));
             const Icon = item.icon;
 
@@ -69,4 +64,3 @@ export function Sidebar() {
     </aside>
   );
 }
-
