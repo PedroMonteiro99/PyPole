@@ -126,12 +126,13 @@ class JolpicaService:
 
         try:
             data = await self._fetch_with_cache(cache_key, url)
-            standings = (
-                data.get("MRData", {})
-                .get("StandingsTable", {})
-                .get("StandingsLists", [{}])[0]
-                .get("DriverStandings", [])
+            standings_lists = (
+                data.get("MRData", {}).get("StandingsTable", {}).get("StandingsLists", [])
             )
+            # Handle empty standings list (e.g., season hasn't started yet)
+            if not standings_lists:
+                return []
+            standings = standings_lists[0].get("DriverStandings", [])
             return standings
         except Exception as e:
             logger.error("failed_to_fetch_driver_standings", season=season, error=str(e))
@@ -147,12 +148,13 @@ class JolpicaService:
 
         try:
             data = await self._fetch_with_cache(cache_key, url)
-            standings = (
-                data.get("MRData", {})
-                .get("StandingsTable", {})
-                .get("StandingsLists", [{}])[0]
-                .get("ConstructorStandings", [])
+            standings_lists = (
+                data.get("MRData", {}).get("StandingsTable", {}).get("StandingsLists", [])
             )
+            # Handle empty standings list (e.g., season hasn't started yet)
+            if not standings_lists:
+                return []
+            standings = standings_lists[0].get("ConstructorStandings", [])
             return standings
         except Exception as e:
             logger.error("failed_to_fetch_constructor_standings", season=season, error=str(e))
@@ -165,7 +167,11 @@ class JolpicaService:
 
         try:
             data = await self._fetch_with_cache(cache_key, url)
-            race_data = data.get("MRData", {}).get("RaceTable", {}).get("Races", [{}])[0]
+            races = data.get("MRData", {}).get("RaceTable", {}).get("Races", [])
+            # Handle empty races list (e.g., race hasn't happened yet)
+            if not races:
+                return {}
+            race_data = races[0]
             return race_data
         except Exception as e:
             logger.error(
@@ -180,7 +186,11 @@ class JolpicaService:
 
         try:
             data = await self._fetch_with_cache(cache_key, url)
-            race_data = data.get("MRData", {}).get("RaceTable", {}).get("Races", [{}])[0]
+            races = data.get("MRData", {}).get("RaceTable", {}).get("Races", [])
+            # Handle empty races list (e.g., qualifying hasn't happened yet)
+            if not races:
+                return {}
+            race_data = races[0]
             return race_data
         except Exception as e:
             logger.error(

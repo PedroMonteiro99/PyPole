@@ -6,13 +6,13 @@ PyPole é uma aplicação full-stack para análise de dados da Fórmula 1, segui
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                        Frontend                              │
-│  Next.js 15 + TypeScript + Shadcn/ui + TanStack Query      │
+│                        Frontend                             │
+│  Next.js 15 + TypeScript + Shadcn/ui + TanStack Query       │
 │                      (Port 3000)                            │
 └─────────────────────────────────────────────────────────────┘
                             ↓ HTTP/REST
 ┌─────────────────────────────────────────────────────────────┐
-│                        Backend API                           │
+│                        Backend API                          │
 │         FastAPI + SQLAlchemy + Redis Cache                  │
 │                      (Port 8000)                            │
 └─────────────────────────────────────────────────────────────┘
@@ -24,7 +24,7 @@ PyPole é uma aplicação full-stack para análise de dados da Fórmula 1, segui
 │   (Port 5432)    │                  │   (Port 6379)    │
 │   User Data      │                  │   API Cache      │
 └──────────────────┘                  └──────────────────┘
-        
+
                     External Data Sources
         ┌───────────────────┴───────────────────┐
         ↓                                       ↓
@@ -146,11 +146,13 @@ Request → Middleware → Route → Dependency → Service → External API/DB 
 ### Fluxo de Autenticação
 
 1. **Registro**:
+
    ```
    User → POST /auth/register → Validate → Hash Password → Save to DB → Auto Login
    ```
 
 2. **Login**:
+
    ```
    User → POST /auth/login → Validate Credentials → Generate JWT → Return Token
    ```
@@ -172,6 +174,7 @@ Request → Middleware → Route → Dependency → Service → External API/DB 
 ### Cache em Duas Camadas
 
 1. **Redis (Backend)**:
+
    - Jolpica API: 15 minutos TTL
    - FastF1 API: 24 horas TTL
    - Chaves organizadas por namespace: `jolpica:*`, `fastf1:*`
@@ -193,6 +196,7 @@ Request → Middleware → Route → Dependency → Service → External API/DB 
 **Uso**: Dados gerais (schedule, standings, results)
 
 **Arquitetura**:
+
 ```
 Backend → JolpicaService → HTTP Client → Jolpica API
               ↓
@@ -200,6 +204,7 @@ Backend → JolpicaService → HTTP Client → Jolpica API
 ```
 
 **Endpoints Consumidos**:
+
 - `GET /f1/{season}.json` - Calendário
 - `GET /f1/{season}/driverStandings.json` - Classificação pilotos
 - `GET /f1/{season}/constructorStandings.json` - Classificação equipes
@@ -210,6 +215,7 @@ Backend → JolpicaService → HTTP Client → Jolpica API
 **Uso**: Dados detalhados (telemetria, lap times, stints)
 
 **Arquitetura**:
+
 ```
 Backend → FastF1Service → FastF1 Library → F1 Data Files
               ↓
@@ -219,6 +225,7 @@ Backend → FastF1Service → FastF1 Library → F1 Data Files
 ```
 
 **Features**:
+
 - Download e cache de dados de sessão
 - Análise de tempos por volta
 - Dados de telemetria (velocidade, throttle, brake, gear)
@@ -263,6 +270,7 @@ CREATE TABLE users (
 ### Team Colors
 
 Cada equipe tem cores específicas definidas em `globals.css`:
+
 - Red Bull: `#3671C6`
 - Ferrari: `#E8002D`
 - Mercedes: `#27F4D2`
@@ -272,6 +280,7 @@ Cada equipe tem cores específicas definidas em `globals.css`:
 ### Tire Compounds
 
 Cores dos compostos de pneu:
+
 - Soft: Vermelho
 - Medium: Amarelo
 - Hard: Branco
@@ -371,6 +380,7 @@ frontend/__tests__/
 ### Backend
 
 **Opções**:
+
 - Docker Container (Recomendado)
 - Heroku
 - AWS ECS/EKS
@@ -380,6 +390,7 @@ frontend/__tests__/
 ### Frontend
 
 **Opções**:
+
 - Vercel (Recomendado para Next.js)
 - Netlify
 - AWS Amplify
@@ -388,6 +399,7 @@ frontend/__tests__/
 ### Database
 
 **Opções**:
+
 - AWS RDS PostgreSQL
 - Google Cloud SQL
 - Heroku Postgres
@@ -396,6 +408,7 @@ frontend/__tests__/
 ### Redis
 
 **Opções**:
+
 - AWS ElastiCache
 - Redis Cloud
 - DigitalOcean Managed Redis
@@ -445,20 +458,24 @@ frontend/__tests__/
 ## 🔮 Roadmap Futuro
 
 1. **Real-time Features**:
+
    - WebSockets para live timing
    - Server-Sent Events para updates
 
 2. **Analytics**:
+
    - Comparação histórica de pilotos
    - Previsões com ML
    - Visualizações avançadas (3D circuit maps)
 
 3. **Social Features**:
+
    - Comentários em corridas
    - Favoritos e watchlists
    - Compartilhamento social
 
 4. **Mobile**:
+
    - Progressive Web App (PWA)
    - React Native app
 
@@ -466,4 +483,3 @@ frontend/__tests__/
    - GraphQL para queries otimizadas
    - Edge caching com CDN
    - Background jobs com Celery
-
