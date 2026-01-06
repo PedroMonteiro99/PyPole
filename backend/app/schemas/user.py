@@ -20,7 +20,7 @@ class UserBase(BaseModel):
 # Properties to receive via API on creation
 class UserCreate(UserBase):
     """User creation schema"""
-    password: str = Field(..., min_length=8, max_length=100)
+    password: str = Field(..., min_length=8, max_length=72)
 
 
 # Properties to receive via API on update
@@ -28,7 +28,7 @@ class UserUpdate(BaseModel):
     """User update schema"""
     email: Optional[EmailStr] = None
     username: Optional[str] = Field(None, min_length=3, max_length=50)
-    password: Optional[str] = Field(None, min_length=8, max_length=100)
+    password: Optional[str] = Field(None, min_length=8, max_length=72)
     is_active: Optional[bool] = None
     favorite_team: Optional[str] = None
     favorite_driver: Optional[str] = None
