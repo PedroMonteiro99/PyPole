@@ -45,17 +45,23 @@ export default function OnboardingPage() {
     const fetchData = async () => {
       try {
         const currentYear = new Date().getFullYear();
-        
+
         // Try current season first
         let driversResponse = await api.get("/jolpica/standings/drivers");
-        let constructorsResponse = await api.get("/jolpica/standings/constructors");
-        
+        let constructorsResponse = await api.get(
+          "/jolpica/standings/constructors"
+        );
+
         // If empty (season hasn't started), try previous year
         if (driversResponse.data.standings.length === 0) {
-          driversResponse = await api.get(`/jolpica/standings/drivers?season=${currentYear - 1}`);
-          constructorsResponse = await api.get(`/jolpica/standings/constructors?season=${currentYear - 1}`);
+          driversResponse = await api.get(
+            `/jolpica/standings/drivers?season=${currentYear - 1}`
+          );
+          constructorsResponse = await api.get(
+            `/jolpica/standings/constructors?season=${currentYear - 1}`
+          );
         }
-        
+
         const standings = driversResponse.data.standings;
         const driversList: Driver[] = standings.map((s: any) => ({
           driverId: s.Driver.driverId,
@@ -65,7 +71,7 @@ export default function OnboardingPage() {
           team: s.Constructors[0]?.name || "",
         }));
         setDrivers(driversList);
-        
+
         const constructorStandings = constructorsResponse.data.standings;
         const teamsList: Team[] = constructorStandings.map((s: any) => ({
           constructorId: s.Constructor.constructorId,
@@ -163,9 +169,9 @@ export default function OnboardingPage() {
                         key={team.constructorId}
                         type="button"
                         onClick={() => setSelectedTeam(team.name)}
-                        className={`p-4 rounded-lg border-2 transition-all text-center font-medium ${
+                        className={`p-4 rounded-lg border-2 transition-all text-center font-medium relative ${
                           selectedTeam === team.name
-                            ? "border-primary ring-2 ring-primary scale-105"
+                            ? "border-primary ring-2 ring-primary ring-offset-0 scale-105 z-10"
                             : "border-border hover:border-primary/50"
                         } ${getTeamColor(team.name)}`}
                       >
@@ -192,9 +198,9 @@ export default function OnboardingPage() {
                         key={driver.driverId}
                         type="button"
                         onClick={() => setSelectedDriver(driver.code)}
-                        className={`p-3 rounded-lg border-2 transition-all text-left ${
+                        className={`p-3 rounded-lg border-2 transition-all text-left relative ${
                           selectedDriver === driver.code
-                            ? "border-primary ring-2 ring-primary"
+                            ? "border-primary ring-2 ring-primary ring-offset-0 z-10"
                             : "border-border hover:border-primary/50"
                         }`}
                       >

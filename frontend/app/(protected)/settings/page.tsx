@@ -48,17 +48,23 @@ export default function SettingsPage() {
         setSelectedDriver(userResponse.data.favorite_driver || "");
 
         const currentYear = new Date().getFullYear();
-        
+
         // Try current season first
         let driversResponse = await api.get("/jolpica/standings/drivers");
-        let constructorsResponse = await api.get("/jolpica/standings/constructors");
-        
+        let constructorsResponse = await api.get(
+          "/jolpica/standings/constructors"
+        );
+
         // If empty (season hasn't started), try previous year
         if (driversResponse.data.standings.length === 0) {
-          driversResponse = await api.get(`/jolpica/standings/drivers?season=${currentYear - 1}`);
-          constructorsResponse = await api.get(`/jolpica/standings/constructors?season=${currentYear - 1}`);
+          driversResponse = await api.get(
+            `/jolpica/standings/drivers?season=${currentYear - 1}`
+          );
+          constructorsResponse = await api.get(
+            `/jolpica/standings/constructors?season=${currentYear - 1}`
+          );
         }
-        
+
         const standings = driversResponse.data.standings;
         const driversList: Driver[] = standings.map((s: any) => ({
           driverId: s.Driver.driverId,
@@ -68,7 +74,7 @@ export default function SettingsPage() {
           team: s.Constructors[0]?.name || "",
         }));
         setDrivers(driversList);
-        
+
         const constructorStandings = constructorsResponse.data.standings;
         const teamsList: Team[] = constructorStandings.map((s: any) => ({
           constructorId: s.Constructor.constructorId,
@@ -163,9 +169,9 @@ export default function SettingsPage() {
                       key={team.constructorId}
                       type="button"
                       onClick={() => setSelectedTeam(team.name)}
-                      className={`p-2 rounded-lg border-2 transition-all text-sm text-center ${
+                      className={`p-2 rounded-lg border-2 transition-all text-sm text-center relative ${
                         selectedTeam === team.name
-                          ? "border-primary ring-2 ring-primary"
+                          ? "border-primary ring-2 ring-primary ring-offset-0 z-10"
                           : "border-border hover:border-primary/50"
                       }`}
                     >
@@ -185,16 +191,16 @@ export default function SettingsPage() {
               <div className="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto">
                 {drivers.length > 0 ? (
                   drivers.map((driver) => (
-                    <button
-                      key={driver.driverId}
-                      type="button"
-                      onClick={() => setSelectedDriver(driver.code)}
-                      className={`p-2 rounded-lg border-2 transition-all text-left text-sm ${
-                        selectedDriver === driver.code
-                          ? "border-primary ring-2 ring-primary"
-                          : "border-border hover:border-primary/50"
-                      }`}
-                    >
+                      <button
+                        key={driver.driverId}
+                        type="button"
+                        onClick={() => setSelectedDriver(driver.code)}
+                        className={`p-2 rounded-lg border-2 transition-all text-left text-sm relative ${
+                          selectedDriver === driver.code
+                            ? "border-primary ring-2 ring-primary ring-offset-0 z-10"
+                            : "border-border hover:border-primary/50"
+                        }`}
+                      >
                       <div className="font-semibold">
                         {driver.givenName} {driver.familyName}
                       </div>
