@@ -192,7 +192,7 @@ export default function OnboardingPage() {
                 <Label className="text-base font-semibold">
                   Favorite Driver
                 </Label>
-                <div className="grid grid-cols-2 gap-3 max-h-64 overflow-y-auto pr-2">
+                <div className="grid grid-cols-2 gap-3 max-h-64 overflow-y-auto px-1 py-1">
                   {drivers.length > 0 ? (
                     drivers.map((driver) => (
                       <button
@@ -216,7 +216,7 @@ export default function OnboardingPage() {
                                 driver.team
                               )}`}
                             >
-                              {driver.team.split(" ").pop()}
+                              {driver.team}
                             </span>
                           )}
                         </div>

@@ -189,7 +189,7 @@ export default function SettingsPage() {
 
             <div className="space-y-4">
               <Label className="text-base">Favorite Driver</Label>
-              <div className="grid grid-cols-2 gap-3 max-h-64 overflow-y-auto pr-1">
+              <div className="grid grid-cols-2 gap-3 max-h-64 overflow-y-auto px-1 py-1">
                 {drivers.length > 0 ? (
                   drivers.map((driver) => (
                     <button
