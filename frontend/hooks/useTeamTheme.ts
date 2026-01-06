@@ -4,15 +4,15 @@ import { api } from "@/lib/api";
 import { useEffect, useState } from "react";
 
 const teamClassMap: Record<string, string> = {
-  "Red Bull Racing": "theme-red-bull",
-  "Ferrari": "theme-ferrari",
-  "Mercedes": "theme-mercedes",
-  "McLaren": "theme-mclaren",
+  "Red Bull": "theme-red-bull",
+  Ferrari: "theme-ferrari",
+  Mercedes: "theme-mercedes",
+  McLaren: "theme-mclaren",
   "Aston Martin": "theme-aston-martin",
   "Alpine F1 Team": "theme-alpine",
-  "Williams": "theme-williams",
+  Williams: "theme-williams",
   "RB F1 Team": "theme-rb",
-  "Kick Sauber": "theme-kick-sauber",
+  Sauber: "theme-kick-sauber",
   "Haas F1 Team": "theme-haas",
 };
 
@@ -71,4 +71,3 @@ export function useTeamTheme() {
 
   return { teamTheme, isLoading, updateTeamTheme };
 }
-
