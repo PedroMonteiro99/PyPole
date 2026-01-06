@@ -5,11 +5,13 @@ Bem-vindo à documentação completa do PyPole! Este índice organiza toda a doc
 ## 🚀 Começando
 
 ### Instalação e Setup
+
 - **[README.md](README.md)** - Visão geral do projeto e features
 - **[SETUP.md](SETUP.md)** - Guia detalhado de configuração
 - **[QUICKSTART.sh](QUICKSTART.sh)** - Script de início rápido
 
 ### Primeiros Passos
+
 1. Leia o [README.md](README.md) para entender o projeto
 2. Siga o [SETUP.md](SETUP.md) para configurar o ambiente
 3. Execute o [QUICKSTART.sh](QUICKSTART.sh) ou use Docker Compose
@@ -18,6 +20,7 @@ Bem-vindo à documentação completa do PyPole! Este índice organiza toda a doc
 ## 📖 Documentação Principal
 
 ### Arquitetura e Design
+
 - **[ARCHITECTURE.md](ARCHITECTURE.md)** - Arquitetura completa da aplicação
   - Visão geral do sistema
   - Componentes e camadas
@@ -28,6 +31,7 @@ Bem-vindo à documentação completa do PyPole! Este índice organiza toda a doc
   - Segurança
 
 ### Stack Tecnológica
+
 - **[TECH_STACK.md](TECH_STACK.md)** - Tecnologias utilizadas
   - Frontend (Next.js, React, TypeScript)
   - Backend (FastAPI, Python, PostgreSQL)
@@ -35,17 +39,10 @@ Bem-vindo à documentação completa do PyPole! Este índice organiza toda a doc
   - Deployment recommendations
   - Ferramentas de desenvolvimento
 
-### Checklist de Implementação
-- **[CHECKLIST.md](CHECKLIST.md)** - Status de implementação
-  - Todas as 8 fases ✅
-  - Features implementadas
-  - Testes e documentação
-  - Deploy checklist
-  - Roadmap futuro
-
 ## 🔧 Documentação por Componente
 
 ### Backend
+
 - **[backend/README.md](backend/README.md)** - Documentação específica do backend
   - Setup do backend
   - API endpoints
@@ -55,6 +52,7 @@ Bem-vindo à documentação completa do PyPole! Este índice organiza toda a doc
   - Cache strategy
 
 ### Frontend
+
 - **[frontend/README.md](frontend/README.md)** - Documentação específica do frontend
   - Setup do frontend
   - Estrutura de componentes
@@ -65,6 +63,7 @@ Bem-vindo à documentação completa do PyPole! Este índice organiza toda a doc
 ## 🤝 Contribuindo
 
 ### Guias de Contribuição
+
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** - Como contribuir
   - Reportando bugs
   - Sugerindo features
@@ -76,6 +75,7 @@ Bem-vindo à documentação completa do PyPole! Este índice organiza toda a doc
 ## 📊 APIs e Integrações
 
 ### API Documentation
+
 - **Swagger UI**: http://localhost:8000/docs (quando rodando)
 - **ReDoc**: http://localhost:8000/redoc (quando rodando)
 - **OpenAPI Schema**: http://localhost:8000/api/v1/openapi.json
@@ -83,6 +83,7 @@ Bem-vindo à documentação completa do PyPole! Este índice organiza toda a doc
 ### Endpoints Principais
 
 #### Autenticação
+
 ```
 POST   /api/v1/auth/register      - Registrar usuário
 POST   /api/v1/auth/login         - Login
@@ -92,6 +93,7 @@ PUT    /api/v1/auth/preferences   - Atualizar preferências
 ```
 
 #### Jolpica (Dados Gerais)
+
 ```
 GET    /api/v1/jolpica/schedule/current         - Calendário atual
 GET    /api/v1/jolpica/schedule/{season}        - Calendário da temporada
@@ -102,6 +104,7 @@ GET    /api/v1/jolpica/results/{season}/{round} - Resultados
 ```
 
 #### FastF1 (Análise Detalhada)
+
 ```
 GET    /api/v1/fastf1/race/{year}/{race}/laps              - Tempos por volta
 GET    /api/v1/fastf1/race/{year}/{race}/driver/{driver}/laps - Voltas do piloto
@@ -115,6 +118,7 @@ GET    /api/v1/fastf1/race/{year}/{race}/fastest-lap       - Volta mais rápida
 ### Desenvolvimento
 
 #### Adicionar Nova Feature
+
 1. Leia [CONTRIBUTING.md](CONTRIBUTING.md)
 2. Crie uma branch: `git checkout -b feature/minha-feature`
 3. Implemente seguindo [ARCHITECTURE.md](ARCHITECTURE.md)
@@ -122,12 +126,14 @@ GET    /api/v1/fastf1/race/{year}/{race}/fastest-lap       - Volta mais rápida
 5. Abra Pull Request
 
 #### Debugar Problemas
+
 1. Verifique logs: `docker-compose logs -f`
 2. Consulte [SETUP.md](SETUP.md) - Troubleshooting
 3. Verifique [ARCHITECTURE.md](ARCHITECTURE.md) - Fluxo de dados
 4. Use DevTools do browser e API docs
 
 #### Fazer Deploy
+
 1. Siga [CHECKLIST.md](CHECKLIST.md) - Checklist de Deploy
 2. Configure variáveis de ambiente
 3. Execute build de produção
@@ -136,6 +142,7 @@ GET    /api/v1/fastf1/race/{year}/{race}/fastest-lap       - Volta mais rápida
 ### Uso da Aplicação
 
 #### Como Usuário
+
 1. Registre uma conta em `/register`
 2. Faça login em `/login`
 3. Explore o Dashboard (home)
@@ -145,6 +152,7 @@ GET    /api/v1/fastf1/race/{year}/{race}/fastest-lap       - Volta mais rápida
 7. Configure preferências em `/settings`
 
 #### Como Desenvolvedor
+
 1. Explore Swagger UI em http://localhost:8000/docs
 2. Teste endpoints com Postman/Insomnia
 3. Use React Query DevTools no frontend
@@ -188,6 +196,7 @@ PyPole/
 ### Documentação de Dependências
 
 #### Frontend
+
 - [Next.js Docs](https://nextjs.org/docs)
 - [React Docs](https://react.dev/)
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/)
@@ -197,6 +206,7 @@ PyPole/
 - [Recharts](https://recharts.org/en-US/api)
 
 #### Backend
+
 - [FastAPI Docs](https://fastapi.tiangolo.com/)
 - [Python Docs](https://docs.python.org/3/)
 - [SQLAlchemy Docs](https://docs.sqlalchemy.org/en/20/)
@@ -205,6 +215,7 @@ PyPole/
 - [Redis Docs](https://redis.io/docs/)
 
 #### F1 Data Sources
+
 - [FastF1 Documentation](https://docs.fastf1.dev/)
 - [Jolpica F1 API](https://github.com/jolpica/jolpica-f1)
 - [Ergast API](http://ergast.com/mrd/)
@@ -214,9 +225,10 @@ PyPole/
 ### Exemplos de Uso
 
 #### Buscar Próxima Corrida
+
 ```typescript
 // Frontend
-import { useNextRace } from '@/hooks/useNextRace';
+import { useNextRace } from "@/hooks/useNextRace";
 
 const { data, isLoading } = useNextRace();
 console.log(data?.race);
@@ -230,9 +242,11 @@ next_race = await jolpica_service.get_next_race()
 ```
 
 #### Adicionar Novo Endpoint
+
 Ver [CONTRIBUTING.md](CONTRIBUTING.md) - Seção "Adicionar Nova Feature"
 
 #### Criar Nova Migração
+
 ```bash
 cd backend
 poetry run alembic revision --autogenerate -m "Add new table"
@@ -242,7 +256,9 @@ poetry run alembic upgrade head
 ## 🐛 Troubleshooting
 
 ### Problemas Comuns
+
 Consulte [SETUP.md](SETUP.md) - Seção "Troubleshooting" para:
+
 - Connection refused (PostgreSQL/Redis)
 - Frontend não conecta ao backend
 - FastF1 data not loading
@@ -260,14 +276,14 @@ Consulte [SETUP.md](SETUP.md) - Seção "Troubleshooting" para:
 
 ## ✅ Status do Projeto
 
-| Fase | Status | Documentação |
-|------|--------|--------------|
-| Fase 1: Setup | ✅ | CHECKLIST.md |
-| Fase 2: Dados | ✅ | CHECKLIST.md |
-| Fase 3: Auth | ✅ | CHECKLIST.md |
-| Fase 4: FastF1 | ✅ | CHECKLIST.md |
-| Fase 5: Polish | ✅ | CHECKLIST.md |
-| Deploy | 🔜 | CHECKLIST.md |
+| Fase           | Status | Documentação |
+| -------------- | ------ | ------------ |
+| Fase 1: Setup  | ✅     | CHECKLIST.md |
+| Fase 2: Dados  | ✅     | CHECKLIST.md |
+| Fase 3: Auth   | ✅     | CHECKLIST.md |
+| Fase 4: FastF1 | ✅     | CHECKLIST.md |
+| Fase 5: Polish | ✅     | CHECKLIST.md |
+| Deploy         | 🔜     | CHECKLIST.md |
 
 ## 🚀 Próximos Passos
 
@@ -285,6 +301,7 @@ Consulte [SETUP.md](SETUP.md) - Seção "Troubleshooting" para:
 ## 📝 Changelog
 
 Versão 1.0.0 (Dezembro 2024):
+
 - ✅ Implementação completa de todas as 8 fases
 - ✅ Backend FastAPI com PostgreSQL e Redis
 - ✅ Frontend Next.js 15 com TypeScript
@@ -300,4 +317,3 @@ Versão 1.0.0 (Dezembro 2024):
 **Status**: ✅ Completo e pronto para uso
 
 **Dúvidas?** Consulte a documentação apropriada acima ou abra uma issue! 🏁
-
