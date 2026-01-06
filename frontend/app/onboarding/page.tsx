@@ -16,24 +16,6 @@ import { getTeamColor } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-// F1 2024/2025 teams
-const teams = [
-  { id: "red_bull", name: "Red Bull Racing", color: "bg-[#3671C6] text-white" },
-  { id: "ferrari", name: "Ferrari", color: "bg-[#E8002D] text-white" },
-  { id: "mercedes", name: "Mercedes", color: "bg-[#27F4D2] text-black" },
-  { id: "mclaren", name: "McLaren", color: "bg-[#FF8000] text-white" },
-  {
-    id: "aston_martin",
-    name: "Aston Martin",
-    color: "bg-[#229971] text-white",
-  },
-  { id: "alpine", name: "Alpine", color: "bg-[#FF87BC] text-white" },
-  { id: "williams", name: "Williams", color: "bg-[#64C4FF] text-white" },
-  { id: "rb", name: "RB", color: "bg-[#6692FF] text-white" },
-  { id: "kick_sauber", name: "Kick Sauber", color: "bg-[#52E252] text-black" },
-  { id: "haas", name: "Haas F1 Team", color: "bg-[#B6BABD] text-black" },
-];
-
 interface Driver {
   driverId: string;
   givenName: string;
@@ -42,21 +24,39 @@ interface Driver {
   team?: string;
 }
 
+interface Team {
+  constructorId: string;
+  name: string;
+  nationality: string;
+}
+
 export default function OnboardingPage() {
   const router = useRouter();
   const { updateTeamTheme } = useTeamTheme();
   const [selectedTeam, setSelectedTeam] = useState("");
   const [selectedDriver, setSelectedDriver] = useState("");
   const [drivers, setDrivers] = useState<Driver[]>([]);
+  const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    // Fetch current drivers from standings
-    const fetchDrivers = async () => {
+    // Fetch current drivers and constructors from standings
+    const fetchData = async () => {
       try {
-        const response = await api.get("/jolpica/standings/drivers");
-        const standings = response.data.standings;
+        const currentYear = new Date().getFullYear();
+        
+        // Try current season first
+        let driversResponse = await api.get("/jolpica/standings/drivers");
+        let constructorsResponse = await api.get("/jolpica/standings/constructors");
+        
+        // If empty (season hasn't started), try previous year
+        if (driversResponse.data.standings.length === 0) {
+          driversResponse = await api.get(`/jolpica/standings/drivers?season=${currentYear - 1}`);
+          constructorsResponse = await api.get(`/jolpica/standings/constructors?season=${currentYear - 1}`);
+        }
+        
+        const standings = driversResponse.data.standings;
         const driversList: Driver[] = standings.map((s: any) => ({
           driverId: s.Driver.driverId,
           givenName: s.Driver.givenName,
@@ -65,14 +65,22 @@ export default function OnboardingPage() {
           team: s.Constructors[0]?.name || "",
         }));
         setDrivers(driversList);
+        
+        const constructorStandings = constructorsResponse.data.standings;
+        const teamsList: Team[] = constructorStandings.map((s: any) => ({
+          constructorId: s.Constructor.constructorId,
+          name: s.Constructor.name,
+          nationality: s.Constructor.nationality,
+        }));
+        setTeams(teamsList);
       } catch (err) {
-        console.error("Error fetching drivers:", err);
-        // Use a fallback list if API fails
+        console.error("Error fetching data:", err);
         setDrivers([]);
+        setTeams([]);
       }
     };
 
-    fetchDrivers();
+    fetchData();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -144,30 +152,36 @@ export default function OnboardingPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-8">
               {/* Teams Selection */}
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <Label className="text-base font-semibold">Favorite Team</Label>
                 <div className="grid grid-cols-2 gap-3">
-                  {teams.map((team) => (
-                    <button
-                      key={team.id}
-                      type="button"
-                      onClick={() => setSelectedTeam(team.name)}
-                      className={`p-4 rounded-lg border-2 transition-all text-center font-medium ${
-                        selectedTeam === team.name
-                          ? "border-primary ring-2 ring-primary scale-105"
-                          : "border-border hover:border-primary/50"
-                      } ${team.color}`}
-                    >
-                      {team.name}
-                    </button>
-                  ))}
+                  {teams.length > 0 ? (
+                    teams.map((team) => (
+                      <button
+                        key={team.constructorId}
+                        type="button"
+                        onClick={() => setSelectedTeam(team.name)}
+                        className={`p-4 rounded-lg border-2 transition-all text-center font-medium ${
+                          selectedTeam === team.name
+                            ? "border-primary ring-2 ring-primary scale-105"
+                            : "border-border hover:border-primary/50"
+                        } ${getTeamColor(team.name)}`}
+                      >
+                        {team.name}
+                      </button>
+                    ))
+                  ) : (
+                    <div className="col-span-2 text-center py-4 text-muted-foreground">
+                      Loading teams...
+                    </div>
+                  )}
                 </div>
               </div>
 
               {/* Drivers Selection */}
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <Label className="text-base font-semibold">
                   Favorite Driver
                 </Label>

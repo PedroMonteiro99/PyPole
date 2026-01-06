@@ -15,19 +15,6 @@ import { api } from "@/lib/api";
 import { getTeamColor } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
-const teams = [
-  "Red Bull Racing",
-  "Ferrari",
-  "Mercedes",
-  "McLaren",
-  "Aston Martin",
-  "Alpine F1 Team",
-  "Williams",
-  "RB F1 Team",
-  "Kick Sauber",
-  "Haas F1 Team",
-];
-
 interface Driver {
   driverId: string;
   givenName: string;
@@ -36,11 +23,18 @@ interface Driver {
   team?: string;
 }
 
+interface Team {
+  constructorId: string;
+  name: string;
+  nationality: string;
+}
+
 export default function SettingsPage() {
   const { updateTeamTheme } = useTeamTheme();
   const [selectedTeam, setSelectedTeam] = useState("");
   const [selectedDriver, setSelectedDriver] = useState("");
   const [drivers, setDrivers] = useState<Driver[]>([]);
+  const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
@@ -53,8 +47,18 @@ export default function SettingsPage() {
         setSelectedTeam(userResponse.data.favorite_team || "");
         setSelectedDriver(userResponse.data.favorite_driver || "");
 
-        // Fetch current drivers
-        const driversResponse = await api.get("/jolpica/standings/drivers");
+        const currentYear = new Date().getFullYear();
+        
+        // Try current season first
+        let driversResponse = await api.get("/jolpica/standings/drivers");
+        let constructorsResponse = await api.get("/jolpica/standings/constructors");
+        
+        // If empty (season hasn't started), try previous year
+        if (driversResponse.data.standings.length === 0) {
+          driversResponse = await api.get(`/jolpica/standings/drivers?season=${currentYear - 1}`);
+          constructorsResponse = await api.get(`/jolpica/standings/constructors?season=${currentYear - 1}`);
+        }
+        
         const standings = driversResponse.data.standings;
         const driversList: Driver[] = standings.map((s: any) => ({
           driverId: s.Driver.driverId,
@@ -64,6 +68,14 @@ export default function SettingsPage() {
           team: s.Constructors[0]?.name || "",
         }));
         setDrivers(driversList);
+        
+        const constructorStandings = constructorsResponse.data.standings;
+        const teamsList: Team[] = constructorStandings.map((s: any) => ({
+          constructorId: s.Constructor.constructorId,
+          name: s.Constructor.name,
+          nationality: s.Constructor.nationality,
+        }));
+        setTeams(teamsList);
       } catch (err) {
         console.error("Error fetching data:", err);
       }
@@ -141,28 +153,34 @@ export default function SettingsPage() {
               colors
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-3">
+          <CardContent className="space-y-6">
+            <div className="space-y-4">
               <Label className="text-base">Favorite Team</Label>
               <div className="grid grid-cols-2 gap-2">
-                {teams.map((team) => (
-                  <button
-                    key={team}
-                    type="button"
-                    onClick={() => setSelectedTeam(team)}
-                    className={`p-2 rounded-lg border-2 transition-all text-sm text-center ${
-                      selectedTeam === team
-                        ? "border-primary ring-2 ring-primary"
-                        : "border-border hover:border-primary/50"
-                    }`}
-                  >
-                    {team}
-                  </button>
-                ))}
+                {teams.length > 0 ? (
+                  teams.map((team) => (
+                    <button
+                      key={team.constructorId}
+                      type="button"
+                      onClick={() => setSelectedTeam(team.name)}
+                      className={`p-2 rounded-lg border-2 transition-all text-sm text-center ${
+                        selectedTeam === team.name
+                          ? "border-primary ring-2 ring-primary"
+                          : "border-border hover:border-primary/50"
+                      }`}
+                    >
+                      {team.name}
+                    </button>
+                  ))
+                ) : (
+                  <div className="col-span-2 text-center py-4 text-muted-foreground text-sm">
+                    Loading teams...
+                  </div>
+                )}
               </div>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-4">
               <Label className="text-base">Favorite Driver</Label>
               <div className="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto">
                 {drivers.length > 0 ? (
