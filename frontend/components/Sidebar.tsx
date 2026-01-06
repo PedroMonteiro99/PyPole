@@ -1,10 +1,11 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { BarChart3, Calendar, Home, Settings, Trophy } from "lucide-react";
+import { BarChart3, Calendar, Home, LogOut, Settings, Trophy } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { F1Logo } from "./F1Logo";
+import { Button } from "./ui/button";
 
 const menuItems = [
   { href: "/", label: "Dashboard", icon: Home },
@@ -16,6 +17,15 @@ const menuItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("first_login");
+    document.cookie = "token=; path=/; max-age=0";
+    router.push("/login");
+    router.refresh();
+  };
 
   return (
     <aside className="w-64 border-r bg-card">
@@ -53,7 +63,15 @@ export function Sidebar() {
         </nav>
 
         {/* Footer */}
-        <div className="border-t p-4">
+        <div className="border-t p-4 space-y-3">
+          <Button
+            variant="outline"
+            className="w-full justify-start gap-2"
+            onClick={handleLogout}
+          >
+            <LogOut className="h-4 w-4" />
+            Logout
+          </Button>
           <p className="text-xs text-muted-foreground text-center">
             PyPole F1 Analytics
             <br />
