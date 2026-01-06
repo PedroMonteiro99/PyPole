@@ -71,7 +71,8 @@ export default function SettingsPage() {
           givenName: s.Driver.givenName,
           familyName: s.Driver.familyName,
           code: s.Driver.code,
-          team: s.Constructors[0]?.name || "",
+          // Get the last constructor (most recent team) in case driver changed teams
+          team: s.Constructors[s.Constructors.length - 1]?.name || "",
         }));
         setDrivers(driversList);
 
@@ -162,7 +163,7 @@ export default function SettingsPage() {
           <CardContent className="space-y-6">
             <div className="space-y-4">
               <Label className="text-base">Favorite Team</Label>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-3">
                 {teams.length > 0 ? (
                   teams.map((team) => (
                     <button
@@ -188,19 +189,19 @@ export default function SettingsPage() {
 
             <div className="space-y-4">
               <Label className="text-base">Favorite Driver</Label>
-              <div className="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto">
+              <div className="grid grid-cols-2 gap-3 max-h-64 overflow-y-auto pr-1">
                 {drivers.length > 0 ? (
                   drivers.map((driver) => (
-                      <button
-                        key={driver.driverId}
-                        type="button"
-                        onClick={() => setSelectedDriver(driver.code)}
-                        className={`p-2 rounded-lg border-2 transition-all text-left text-sm relative ${
-                          selectedDriver === driver.code
-                            ? "border-primary ring-2 ring-primary ring-offset-0 z-10"
-                            : "border-border hover:border-primary/50"
-                        }`}
-                      >
+                    <button
+                      key={driver.driverId}
+                      type="button"
+                      onClick={() => setSelectedDriver(driver.code)}
+                      className={`p-3 rounded-lg border-2 transition-all text-left text-sm relative ${
+                        selectedDriver === driver.code
+                          ? "border-primary ring-2 ring-primary ring-offset-0 z-10"
+                          : "border-border hover:border-primary/50"
+                      }`}
+                    >
                       <div className="font-semibold">
                         {driver.givenName} {driver.familyName}
                       </div>
@@ -212,7 +213,7 @@ export default function SettingsPage() {
                               driver.team
                             )}`}
                           >
-                            {driver.team.split(" ").pop()}
+                            {driver.team}
                           </span>
                         )}
                       </div>

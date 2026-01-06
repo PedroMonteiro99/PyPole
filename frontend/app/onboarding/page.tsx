@@ -68,7 +68,8 @@ export default function OnboardingPage() {
           givenName: s.Driver.givenName,
           familyName: s.Driver.familyName,
           code: s.Driver.code,
-          team: s.Constructors[0]?.name || "",
+          // Get the last constructor (most recent team) in case driver changed teams
+          team: s.Constructors[s.Constructors.length - 1]?.name || "",
         }));
         setDrivers(driversList);
 
