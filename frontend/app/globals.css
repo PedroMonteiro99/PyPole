@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
+/* Base light theme */
 @theme {
   --color-border: hsl(214.3 31.8% 91.4%);
   --color-input: hsl(214.3 31.8% 91.4%);
@@ -26,8 +27,32 @@
   --radius-sm: calc(0.5rem - 4px);
 }
 
+/* Dark theme */
+.dark {
+  --color-background: hsl(222.2 84% 4.9%);
+  --color-foreground: hsl(210 40% 98%);
+  --color-card: hsl(222.2 84% 4.9%);
+  --color-card-foreground: hsl(210 40% 98%);
+  --color-popover: hsl(222.2 84% 4.9%);
+  --color-popover-foreground: hsl(210 40% 98%);
+  --color-primary: hsl(0 72% 51%);
+  --color-primary-foreground: hsl(0 0% 100%);
+  --color-secondary: hsl(217.2 32.6% 17.5%);
+  --color-secondary-foreground: hsl(210 40% 98%);
+  --color-muted: hsl(217.2 32.6% 17.5%);
+  --color-muted-foreground: hsl(215 20.2% 65.1%);
+  --color-accent: hsl(217.2 32.6% 17.5%);
+  --color-accent-foreground: hsl(210 40% 98%);
+  --color-destructive: hsl(0 62.8% 30.6%);
+  --color-destructive-foreground: hsl(210 40% 98%);
+  --color-border: hsl(217.2 32.6% 17.5%);
+  --color-input: hsl(217.2 32.6% 17.5%);
+  --color-ring: hsl(0 72% 51%);
+}
+
+/* Auto dark mode */
 @media (prefers-color-scheme: dark) {
-  @theme {
+  :root:not(.light) {
     --color-background: hsl(222.2 84% 4.9%);
     --color-foreground: hsl(210 40% 98%);
     --color-card: hsl(222.2 84% 4.9%);
@@ -49,6 +74,30 @@
     --color-ring: hsl(0 72% 51%);
   }
 }
+
+/* Team-based theme colors - Light mode */
+.theme-red-bull { --color-primary: hsl(215 64% 50%); --color-ring: hsl(215 64% 50%); }
+.theme-ferrari { --color-primary: hsl(348 100% 45%); --color-ring: hsl(348 100% 45%); }
+.theme-mercedes { --color-primary: hsl(169 85% 56%); --color-ring: hsl(169 85% 56%); }
+.theme-mclaren { --color-primary: hsl(30 100% 50%); --color-ring: hsl(30 100% 50%); }
+.theme-aston-martin { --color-primary: hsl(161 66% 30%); --color-ring: hsl(161 66% 30%); }
+.theme-alpine { --color-primary: hsl(336 100% 76%); --color-ring: hsl(336 100% 76%); }
+.theme-williams { --color-primary: hsl(200 100% 69%); --color-ring: hsl(200 100% 69%); }
+.theme-rb { --color-primary: hsl(220 100% 69%); --color-ring: hsl(220 100% 69%); }
+.theme-kick-sauber { --color-primary: hsl(120 56% 60%); --color-ring: hsl(120 56% 60%); }
+.theme-haas { --color-primary: hsl(210 6% 72%); --color-ring: hsl(210 6% 72%); }
+
+/* Team-based theme colors - Dark mode */
+.dark.theme-red-bull { --color-primary: hsl(215 64% 50%); }
+.dark.theme-ferrari { --color-primary: hsl(348 100% 45%); }
+.dark.theme-mercedes { --color-primary: hsl(169 85% 56%); }
+.dark.theme-mclaren { --color-primary: hsl(30 100% 50%); }
+.dark.theme-aston-martin { --color-primary: hsl(161 66% 35%); }
+.dark.theme-alpine { --color-primary: hsl(336 100% 76%); }
+.dark.theme-williams { --color-primary: hsl(200 100% 69%); }
+.dark.theme-rb { --color-primary: hsl(220 100% 69%); }
+.dark.theme-kick-sauber { --color-primary: hsl(120 56% 60%); }
+.dark.theme-haas { --color-primary: hsl(210 6% 72%); }
 
 * {
   border-color: var(--color-border);
