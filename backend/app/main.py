@@ -7,7 +7,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 
-from app.api.v1 import auth, fastf1, jolpica
+from app.api.v1 import auth, comparison, fastf1, jolpica, predictor, profiles, race_weekend, strategy, widgets
 from app.core.config import settings
 from app.utils.cache import close_redis
 
@@ -91,6 +91,42 @@ app.include_router(
     fastf1.router,
     prefix=f"{settings.API_V1_PREFIX}/fastf1",
     tags=["fastf1"]
+)
+
+app.include_router(
+    race_weekend.router,
+    prefix=f"{settings.API_V1_PREFIX}/race-weekend",
+    tags=["race-weekend"]
+)
+
+app.include_router(
+    comparison.router,
+    prefix=f"{settings.API_V1_PREFIX}/comparison",
+    tags=["comparison"]
+)
+
+app.include_router(
+    profiles.router,
+    prefix=f"{settings.API_V1_PREFIX}/profiles",
+    tags=["profiles"]
+)
+
+app.include_router(
+    strategy.router,
+    prefix=f"{settings.API_V1_PREFIX}/strategy",
+    tags=["strategy"]
+)
+
+app.include_router(
+    predictor.router,
+    prefix=f"{settings.API_V1_PREFIX}/predictor",
+    tags=["predictor"]
+)
+
+app.include_router(
+    widgets.router,
+    prefix=f"{settings.API_V1_PREFIX}/widgets",
+    tags=["widgets"]
 )
 
 
