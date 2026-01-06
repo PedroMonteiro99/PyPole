@@ -1,6 +1,7 @@
 "use client";
 
 import { RaceCard } from "@/components/RaceCard";
+import { DashboardWidget } from "@/components/DashboardWidget";
 import {
   Card,
   CardContent,
@@ -12,12 +13,39 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useNextRace } from "@/hooks/useNextRace";
 import { useDriverStandings } from "@/hooks/useStandings";
 import { getTeamColor } from "@/lib/utils";
+import api from "@/lib/api";
 import { Calendar, Flag, Trophy } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 export default function HomePage() {
   const { data: nextRaceData, isLoading: nextRaceLoading } = useNextRace();
   const { data: standingsData, isLoading: standingsLoading } =
     useDriverStandings();
+
+  // Get widget data
+  const { data: nextRaceWidget, isLoading: nextRaceWidgetLoading } = useQuery({
+    queryKey: ["widget", "next_race"],
+    queryFn: async () => {
+      const response = await api.get("/widgets/data/next_race");
+      return response.data;
+    },
+  });
+
+  const { data: leaderWidget, isLoading: leaderWidgetLoading } = useQuery({
+    queryKey: ["widget", "championship_leader"],
+    queryFn: async () => {
+      const response = await api.get("/widgets/data/championship_leader");
+      return response.data;
+    },
+  });
+
+  const { data: favoriteDriverWidget } = useQuery({
+    queryKey: ["widget", "favorite_driver"],
+    queryFn: async () => {
+      const response = await api.get("/widgets/data/favorite_driver");
+      return response.data;
+    },
+  });
 
   const topDrivers = standingsData?.standings.slice(0, 5) || [];
 
@@ -29,6 +57,25 @@ export default function HomePage() {
         <p className="text-muted-foreground mt-2">
           Welcome to PyPole F1 Analytics
         </p>
+      </div>
+
+      {/* Widget Grid */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <DashboardWidget
+          widgetId="next_race"
+          data={nextRaceWidget}
+          isLoading={nextRaceWidgetLoading}
+        />
+        <DashboardWidget
+          widgetId="championship_leader"
+          data={leaderWidget}
+          isLoading={leaderWidgetLoading}
+        />
+        <DashboardWidget
+          widgetId="favorite_driver"
+          data={favoriteDriverWidget}
+          isLoading={false}
+        />
       </div>
 
       {/* Stats Cards */}

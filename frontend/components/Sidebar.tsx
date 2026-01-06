@@ -1,7 +1,19 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { BarChart3, Calendar, Home, LogOut, Settings, Trophy } from "lucide-react";
+import {
+  BarChart3,
+  Calendar,
+  Flag,
+  Gauge,
+  GitCompare,
+  Home,
+  LogOut,
+  Settings,
+  TrendingUp,
+  Trophy,
+  Users,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { F1Logo } from "./F1Logo";
@@ -9,9 +21,14 @@ import { Button } from "./ui/button";
 
 const menuItems = [
   { href: "/", label: "Dashboard", icon: Home },
+  { href: "/race-weekend", label: "Race Weekend", icon: Flag },
   { href: "/schedule", label: "Schedule", icon: Calendar },
   { href: "/standings", label: "Standings", icon: Trophy },
+  { href: "/drivers", label: "Drivers", icon: Users },
+  { href: "/comparison", label: "Compare", icon: GitCompare },
   { href: "/race", label: "Race Analysis", icon: BarChart3 },
+  { href: "/strategy", label: "Strategy", icon: Gauge },
+  { href: "/predictor", label: "Predictor", icon: TrendingUp },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 
@@ -41,7 +58,7 @@ export function Sidebar() {
           {menuItems.map((item) => {
             const isActive =
               pathname === item.href ||
-              (item.href !== "/" && pathname.startsWith(item.href));
+              (item.href !== "/" && pathname.startsWith(item.href + "/"));
             const Icon = item.icon;
 
             return (
