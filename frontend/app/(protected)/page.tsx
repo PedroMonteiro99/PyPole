@@ -1,7 +1,9 @@
 "use client";
 
-import { RaceCard } from "@/components/RaceCard";
 import { DashboardWidget } from "@/components/DashboardWidget";
+import { PositionBadge } from "@/components/PositionBadge";
+import { RaceCard } from "@/components/RaceCard";
+import { TeamBadge } from "@/components/TeamBadge";
 import {
   Card,
   CardContent,
@@ -12,10 +14,9 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { useNextRace } from "@/hooks/useNextRace";
 import { useDriverStandings } from "@/hooks/useStandings";
-import { getTeamColor } from "@/lib/utils";
 import api from "@/lib/api";
-import { Calendar, Flag, Trophy } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { Calendar, Flag, Trophy } from "lucide-react";
 
 export default function HomePage() {
   const { data: nextRaceData, isLoading: nextRaceLoading } = useNextRace();
@@ -48,6 +49,23 @@ export default function HomePage() {
   });
 
   const topDrivers = standingsData?.standings.slice(0, 5) || [];
+
+  let nextRaceContent;
+  if (nextRaceLoading) {
+    nextRaceContent = <Skeleton className="h-48 w-full" />;
+  } else if (nextRaceData?.race) {
+    nextRaceContent = <RaceCard race={nextRaceData.race} />;
+  } else {
+    nextRaceContent = (
+      <Card>
+        <CardContent className="py-8">
+          <p className="text-center text-muted-foreground">
+            No upcoming races scheduled
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -145,19 +163,7 @@ export default function HomePage() {
       {/* Next Race */}
       <div>
         <h2 className="text-2xl font-bold mb-4">Next Race</h2>
-        {nextRaceLoading ? (
-          <Skeleton className="h-48 w-full" />
-        ) : nextRaceData?.race ? (
-          <RaceCard race={nextRaceData.race} />
-        ) : (
-          <Card>
-            <CardContent className="py-8">
-              <p className="text-center text-muted-foreground">
-                No upcoming races scheduled
-              </p>
-            </CardContent>
-          </Card>
-        )}
+        {nextRaceContent}
       </div>
 
       {/* Top 5 Drivers */}
@@ -178,21 +184,16 @@ export default function HomePage() {
                     key={standing.Driver.driverId}
                     className="flex items-center gap-4"
                   >
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold">
-                      {index + 1}
-                    </div>
+                    <PositionBadge position={index + 1} size="sm" />
                     <div className="flex-1">
                       <div className="font-semibold">
                         {standing.Driver.givenName} {standing.Driver.familyName}
                       </div>
                       <div className="text-sm text-muted-foreground">
-                        <span
-                          className={`inline-block px-2 py-0.5 rounded text-xs ${getTeamColor(
-                            standing.Constructors[0]?.name || ""
-                          )}`}
-                        >
-                          {standing.Constructors[0]?.name || "N/A"}
-                        </span>
+                        <TeamBadge
+                          teamName={standing.Constructors[0]?.name || "N/A"}
+                          size="xs"
+                        />
                       </div>
                     </div>
                     <div className="text-right">

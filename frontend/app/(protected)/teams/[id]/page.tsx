@@ -1,15 +1,17 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { PositionBadge } from "@/components/PositionBadge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import api from "@/lib/api";
-import { getTeamColor } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
-import { Building2, Trophy, Users, TrendingUp } from "lucide-react";
-import { use } from "react";
+import { Building2, Trophy, Users } from "lucide-react";
 import Link from "next/link";
+import { use } from "react";
 
-export default function TeamProfilePage({ params }: { params: Promise<{ id: string }> }) {
+export default function TeamProfilePage({
+  params,
+}: Readonly<{ params: Promise<{ id: string }> }>) {
   const { id } = use(params);
   const season = new Date().getFullYear();
 
@@ -46,8 +48,10 @@ export default function TeamProfilePage({ params }: { params: Promise<{ id: stri
       {/* Header */}
       <div className="space-y-4">
         <div className="flex items-start gap-6">
-          <div className={`h-24 w-24 rounded-full flex items-center justify-center ${getTeamColor(team.name)}`}>
-            <Building2 className="h-12 w-12" />
+          <div
+            className={`h-24 w-24 rounded-full flex items-center justify-center bg-muted`}
+          >
+            <Building2 className="h-12 w-12 text-muted-foreground" />
           </div>
           <div className="flex-1">
             <h1 className="text-4xl font-bold">{team.name}</h1>
@@ -64,7 +68,9 @@ export default function TeamProfilePage({ params }: { params: Promise<{ id: stri
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Position</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Position
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold">P{currentSeason.position}</p>
@@ -73,7 +79,9 @@ export default function TeamProfilePage({ params }: { params: Promise<{ id: stri
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Points</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Points
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold">{currentSeason.points}</p>
@@ -82,7 +90,9 @@ export default function TeamProfilePage({ params }: { params: Promise<{ id: stri
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Wins</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Wins
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold">{currentSeason.wins}</p>
@@ -91,7 +101,9 @@ export default function TeamProfilePage({ params }: { params: Promise<{ id: stri
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Drivers</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Drivers
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-3xl font-bold">{currentSeason.drivers.length}</p>
@@ -116,9 +128,7 @@ export default function TeamProfilePage({ params }: { params: Promise<{ id: stri
               >
                 <div className="flex items-center justify-between p-4 rounded-lg border hover:shadow-lg transition-shadow cursor-pointer">
                   <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">
-                      {driver.driver.code}
-                    </div>
+                    <PositionBadge position={driver.position} size="md" />
                     <div>
                       <p className="font-semibold text-lg">
                         {driver.driver.givenName} {driver.driver.familyName}
@@ -155,23 +165,28 @@ export default function TeamProfilePage({ params }: { params: Promise<{ id: stri
               <div key={result.round} className="p-4 rounded-lg border">
                 <div className="flex items-center justify-between mb-3">
                   <h4 className="font-bold">{result.race}</h4>
-                  <span className="font-bold text-lg">{result.total_points} pts</span>
+                  <span className="font-bold text-lg">
+                    {result.total_points} pts
+                  </span>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   {result.results.map((driverResult: any, index: number) => (
-                    <div key={index} className="flex items-center justify-between p-2 rounded bg-secondary">
+                    <div
+                      key={driverResult.driver}
+                      className="flex items-center justify-between p-2 rounded bg-secondary"
+                    >
                       <div className="flex items-center gap-2">
-                        <span className={`h-8 w-8 rounded-full flex items-center justify-center font-bold text-sm ${
-                          driverResult.position === 1 ? 'bg-yellow-500 text-white' :
-                          driverResult.position === 2 ? 'bg-gray-400 text-white' :
-                          driverResult.position === 3 ? 'bg-orange-600 text-white' :
-                          'bg-primary text-primary-foreground'
-                        }`}>
-                          {driverResult.position}
+                        <PositionBadge
+                          position={driverResult.position}
+                          size="sm"
+                        />
+                        <span className="text-sm font-semibold">
+                          {driverResult.driver}
                         </span>
-                        <span className="text-sm font-semibold">{driverResult.driver}</span>
                       </div>
-                      <span className="text-sm font-bold">{driverResult.points} pts</span>
+                      <span className="text-sm font-bold">
+                        {driverResult.points} pts
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -183,4 +198,3 @@ export default function TeamProfilePage({ params }: { params: Promise<{ id: stri
     </div>
   );
 }
-

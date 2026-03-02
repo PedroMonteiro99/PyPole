@@ -29,7 +29,7 @@ export const authConfig = {
               headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
               },
-            }
+            },
           );
 
           const { access_token } = loginResponse.data;
@@ -44,7 +44,7 @@ export const authConfig = {
           const user = userResponse.data;
 
           // Store token in localStorage for API calls
-          if (typeof window !== "undefined") {
+          if (globalThis.window !== undefined) {
             localStorage.setItem("token", access_token);
           }
 
@@ -83,4 +83,3 @@ export const authConfig = {
     strategy: "jwt",
   },
 } satisfies NextAuthConfig;
-

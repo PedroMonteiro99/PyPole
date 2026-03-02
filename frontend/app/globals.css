@@ -21,7 +21,7 @@
   --color-popover-foreground: hsl(222.2 84% 4.9%);
   --color-card: hsl(0 0% 100%);
   --color-card-foreground: hsl(222.2 84% 4.9%);
-  
+
   --radius-lg: 0.5rem;
   --radius-md: calc(0.5rem - 2px);
   --radius-sm: calc(0.5rem - 4px);
@@ -76,28 +76,78 @@
 }
 
 /* Team-based theme colors - Light mode */
-.theme-red-bull { --color-primary: hsl(215 64% 50%); --color-ring: hsl(215 64% 50%); }
-.theme-ferrari { --color-primary: hsl(348 100% 45%); --color-ring: hsl(348 100% 45%); }
-.theme-mercedes { --color-primary: hsl(169 85% 56%); --color-ring: hsl(169 85% 56%); }
-.theme-mclaren { --color-primary: hsl(30 100% 50%); --color-ring: hsl(30 100% 50%); }
-.theme-aston-martin { --color-primary: hsl(161 66% 30%); --color-ring: hsl(161 66% 30%); }
-.theme-alpine { --color-primary: hsl(336 100% 76%); --color-ring: hsl(336 100% 76%); }
-.theme-williams { --color-primary: hsl(200 100% 69%); --color-ring: hsl(200 100% 69%); }
-.theme-rb { --color-primary: hsl(220 100% 69%); --color-ring: hsl(220 100% 69%); }
-.theme-kick-sauber { --color-primary: hsl(120 56% 60%); --color-ring: hsl(120 56% 60%); }
-.theme-haas { --color-primary: hsl(210 6% 72%); --color-ring: hsl(210 6% 72%); }
+.theme-red-bull {
+  --color-primary: hsl(215 64% 50%);
+  --color-ring: hsl(215 64% 50%);
+}
+.theme-ferrari {
+  --color-primary: hsl(348 100% 45%);
+  --color-ring: hsl(348 100% 45%);
+}
+.theme-mercedes {
+  --color-primary: hsl(169 85% 56%);
+  --color-ring: hsl(169 85% 56%);
+}
+.theme-mclaren {
+  --color-primary: hsl(30 100% 50%);
+  --color-ring: hsl(30 100% 50%);
+}
+.theme-aston-martin {
+  --color-primary: hsl(161 66% 30%);
+  --color-ring: hsl(161 66% 30%);
+}
+.theme-alpine {
+  --color-primary: hsl(336 100% 76%);
+  --color-ring: hsl(336 100% 76%);
+}
+.theme-williams {
+  --color-primary: hsl(200 100% 69%);
+  --color-ring: hsl(200 100% 69%);
+}
+.theme-rb {
+  --color-primary: hsl(220 100% 69%);
+  --color-ring: hsl(220 100% 69%);
+}
+.theme-kick-sauber {
+  --color-primary: hsl(120 56% 60%);
+  --color-ring: hsl(120 56% 60%);
+}
+.theme-haas {
+  --color-primary: hsl(210 6% 72%);
+  --color-ring: hsl(210 6% 72%);
+}
 
 /* Team-based theme colors - Dark mode */
-.dark.theme-red-bull { --color-primary: hsl(215 64% 50%); }
-.dark.theme-ferrari { --color-primary: hsl(348 100% 45%); }
-.dark.theme-mercedes { --color-primary: hsl(169 85% 56%); }
-.dark.theme-mclaren { --color-primary: hsl(30 100% 50%); }
-.dark.theme-aston-martin { --color-primary: hsl(161 66% 35%); }
-.dark.theme-alpine { --color-primary: hsl(336 100% 76%); }
-.dark.theme-williams { --color-primary: hsl(200 100% 69%); }
-.dark.theme-rb { --color-primary: hsl(220 100% 69%); }
-.dark.theme-kick-sauber { --color-primary: hsl(120 56% 60%); }
-.dark.theme-haas { --color-primary: hsl(210 6% 72%); }
+.dark.theme-red-bull {
+  --color-primary: hsl(215 64% 50%);
+}
+.dark.theme-ferrari {
+  --color-primary: hsl(348 100% 45%);
+}
+.dark.theme-mercedes {
+  --color-primary: hsl(169 85% 56%);
+}
+.dark.theme-mclaren {
+  --color-primary: hsl(30 100% 50%);
+}
+.dark.theme-aston-martin {
+  --color-primary: hsl(161 66% 35%);
+}
+.dark.theme-alpine {
+  --color-primary: hsl(336 100% 76%);
+}
+.dark.theme-williams {
+  --color-primary: hsl(200 100% 69%);
+}
+.dark.theme-rb {
+  --color-primary: hsl(220 100% 69%);
+}
+.dark.theme-kick-sauber {
+  --color-primary: hsl(120 56% 60%);
+}
+.dark.theme-haas {
+  --color-primary: hsl(210 6% 72%);
+}
 
 * {
   border-color: var(--color-border);
@@ -127,79 +177,79 @@ body {
   background-color: var(--color-foreground);
 }
 
-/* F1 team colors */
+/* F1 team colors — Tailwind token references via @apply */
 .team-red-bull {
-  background-color: #3671C6;
-  color: white;
+  @apply bg-blue-600 text-white;
 }
 
 .team-ferrari {
-  background-color: #E8002D;
-  color: white;
+  @apply bg-red-600 text-white;
 }
 
 .team-mercedes {
-  background-color: #27F4D2;
-  color: black;
+  @apply bg-teal-300 text-black;
 }
 
 .team-mclaren {
-  background-color: #FF8000;
-  color: white;
+  @apply bg-orange-500 text-white;
 }
 
 .team-aston-martin {
-  background-color: #229971;
-  color: white;
+  @apply bg-emerald-700 text-white;
 }
 
 .team-alpine {
-  background-color: #FF87BC;
-  color: white;
+  @apply bg-pink-400 text-white;
 }
 
 .team-williams {
-  background-color: #64C4FF;
-  color: white;
+  @apply bg-sky-300 text-black;
 }
 
 .team-rb {
-  background-color: #6692FF;
-  color: white;
+  @apply bg-indigo-400 text-white;
 }
 
 .team-kick-sauber {
-  background-color: #52E252;
-  color: black;
+  @apply bg-green-400 text-black;
 }
 
 .team-haas {
-  background-color: #B6BABD;
-  color: black;
+  @apply bg-slate-400 text-black;
 }
 
-/* Tire compound colors */
+/* Backgrounds for auth/onboarding pages */
+.auth-bg {
+  background-image: url("https://images.unsplash.com/photo-1742744652734-d5ec6598b5da?q=80&w=2070&auto=format&fit=crop");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.onboarding-bg {
+  background-image: url("https://images.unsplash.com/photo-1563899522385-cc0ed4a4d1e6?q=80&w=2070&auto=format&fit=crop");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Tire compound colors — Tailwind token references */
 .compound-soft {
-  background-color: #dc2626;
-  color: white;
+  @apply bg-red-600 text-white;
 }
 
 .compound-medium {
-  background-color: #facc15;
-  color: black;
+  @apply bg-yellow-400 text-black;
 }
 
 .compound-hard {
-  background-color: #d1d5db;
-  color: black;
+  @apply bg-gray-300 text-black;
 }
 
 .compound-intermediate {
-  background-color: #16a34a;
-  color: white;
+  @apply bg-green-600 text-white;
 }
 
 .compound-wet {
-  background-color: #2563eb;
-  color: white;
+  @apply bg-blue-600 text-white;
 }

@@ -1,11 +1,17 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { TeamBadge } from "@/components/TeamBadge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getTeamColor } from "@/lib/utils";
-import { Calendar, Trophy, Users, Flag, Gauge } from "lucide-react";
-import Link from "next/link";
 import { format } from "date-fns";
+import { Flag, Gauge, Trophy, Users } from "lucide-react";
+import Link from "next/link";
 
 interface DashboardWidgetProps {
   widgetId: string;
@@ -13,7 +19,11 @@ interface DashboardWidgetProps {
   isLoading?: boolean;
 }
 
-export function DashboardWidget({ widgetId, data, isLoading }: DashboardWidgetProps) {
+export function DashboardWidget({
+  widgetId,
+  data,
+  isLoading,
+}: Readonly<DashboardWidgetProps>) {
   if (isLoading) {
     return (
       <Card>
@@ -62,7 +72,7 @@ export function DashboardWidget({ widgetId, data, isLoading }: DashboardWidgetPr
   }
 }
 
-function NextRaceWidget({ data }: { data: any }) {
+function NextRaceWidget({ data }: Readonly<{ data: any }>) {
   if (!data) return null;
 
   return (
@@ -90,7 +100,7 @@ function NextRaceWidget({ data }: { data: any }) {
   );
 }
 
-function DriverStandingsWidget({ data }: { data: any }) {
+function DriverStandingsWidget({ data }: Readonly<{ data: any }>) {
   if (!data) return null;
 
   return (
@@ -106,7 +116,10 @@ function DriverStandingsWidget({ data }: { data: any }) {
         <CardContent>
           <div className="space-y-2">
             {data.standings.slice(0, 5).map((standing: any, index: number) => (
-              <div key={index} className="flex items-center justify-between">
+              <div
+                key={standing.position}
+                className="flex items-center justify-between"
+              >
                 <div className="flex items-center gap-2">
                   <span className="font-bold w-6">P{standing.position}</span>
                   <span className="text-sm">{standing.Driver.familyName}</span>
@@ -121,7 +134,7 @@ function DriverStandingsWidget({ data }: { data: any }) {
   );
 }
 
-function ConstructorStandingsWidget({ data }: { data: any }) {
+function ConstructorStandingsWidget({ data }: Readonly<{ data: any }>) {
   if (!data) return null;
 
   return (
@@ -137,12 +150,13 @@ function ConstructorStandingsWidget({ data }: { data: any }) {
         <CardContent>
           <div className="space-y-2">
             {data.standings.slice(0, 5).map((standing: any, index: number) => (
-              <div key={index} className="flex items-center justify-between">
+              <div
+                key={standing.position}
+                className="flex items-center justify-between"
+              >
                 <div className="flex items-center gap-2">
                   <span className="font-bold w-6">P{standing.position}</span>
-                  <span className={`text-sm px-2 py-0.5 rounded ${getTeamColor(standing.Constructor.name)}`}>
-                    {standing.Constructor.name}
-                  </span>
+                  <TeamBadge teamName={standing.Constructor.name} size="xs" />
                 </div>
                 <span className="font-bold">{standing.points}</span>
               </div>
@@ -154,7 +168,7 @@ function ConstructorStandingsWidget({ data }: { data: any }) {
   );
 }
 
-function FavoriteDriverWidget({ data }: { data: any }) {
+function FavoriteDriverWidget({ data }: Readonly<{ data: any }>) {
   if (!data) {
     return (
       <Card>
@@ -187,7 +201,9 @@ function FavoriteDriverWidget({ data }: { data: any }) {
           <div className="space-y-3">
             <div className="flex justify-between">
               <span className="text-sm text-muted-foreground">Position</span>
-              <span className="font-bold text-lg">P{data.current_season.position}</span>
+              <span className="font-bold text-lg">
+                P{data.current_season.position}
+              </span>
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-muted-foreground">Points</span>
@@ -204,7 +220,7 @@ function FavoriteDriverWidget({ data }: { data: any }) {
   );
 }
 
-function FavoriteTeamWidget({ data }: { data: any }) {
+function FavoriteTeamWidget({ data }: Readonly<{ data: any }>) {
   if (!data) {
     return (
       <Card>
@@ -224,16 +240,16 @@ function FavoriteTeamWidget({ data }: { data: any }) {
     <Link href={`/teams/${data.constructor.constructorId}`}>
       <Card className="hover:shadow-lg transition-shadow cursor-pointer">
         <CardHeader>
-          <CardTitle className={`${getTeamColor(data.constructor.name)}`}>
-            {data.constructor.name}
-          </CardTitle>
+          <CardTitle>{data.constructor.name}</CardTitle>
           <CardDescription>Your Favorite Team</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
             <div className="flex justify-between">
               <span className="text-sm text-muted-foreground">Position</span>
-              <span className="font-bold text-lg">P{data.current_season.position}</span>
+              <span className="font-bold text-lg">
+                P{data.current_season.position}
+              </span>
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-muted-foreground">Points</span>
@@ -250,7 +266,7 @@ function FavoriteTeamWidget({ data }: { data: any }) {
   );
 }
 
-function ChampionshipLeaderWidget({ data }: { data: any }) {
+function ChampionshipLeaderWidget({ data }: Readonly<{ data: any }>) {
   if (!data) return null;
 
   return (
@@ -266,9 +282,7 @@ function ChampionshipLeaderWidget({ data }: { data: any }) {
           <h3 className="text-2xl font-bold">
             {data.Driver.givenName} {data.Driver.familyName}
           </h3>
-          <p className={`text-sm px-2 py-1 rounded inline-block ${getTeamColor(data.Constructors[0]?.name || "")}`}>
-            {data.Constructors[0]?.name || "N/A"}
-          </p>
+          <TeamBadge teamName={data.Constructors[0]?.name || "N/A"} size="sm" />
           <div className="flex justify-between pt-2">
             <span className="text-muted-foreground">Points</span>
             <span className="font-bold text-xl">{data.points}</span>
@@ -283,7 +297,7 @@ function ChampionshipLeaderWidget({ data }: { data: any }) {
   );
 }
 
-function FastestLapWidget({ data }: { data: any }) {
+function FastestLapWidget({ data }: Readonly<{ data: any }>) {
   if (!data) return null;
 
   return (
@@ -309,4 +323,3 @@ function FastestLapWidget({ data }: { data: any }) {
     </Card>
   );
 }
-

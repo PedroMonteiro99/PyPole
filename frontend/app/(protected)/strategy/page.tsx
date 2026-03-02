@@ -1,12 +1,26 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { PositionBadge } from "@/components/PositionBadge";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import api from "@/lib/api";
-import { getTeamColor } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
-import { Gauge, TrendingDown, Award, Clock } from "lucide-react";
+import { Award, Clock, Gauge, TrendingDown } from "lucide-react";
 import { useState } from "react";
 
 export default function StrategyPage() {
@@ -24,7 +38,11 @@ export default function StrategyPage() {
   });
 
   // Get strategy analysis
-  const { data: strategyData, isLoading, refetch } = useQuery({
+  const {
+    data: strategyData,
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["strategy", year, race],
     queryFn: async () => {
       const response = await api.get(`/strategy/race/${year}/${race}`);
@@ -54,40 +72,56 @@ export default function StrategyPage() {
       <Card>
         <CardHeader>
           <CardTitle>Select Race to Analyze</CardTitle>
-          <CardDescription>Choose a race to see detailed strategy analysis</CardDescription>
+          <CardDescription>
+            Choose a race to see detailed strategy analysis
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Year</label>
-              <select
-                className="w-full p-2 border rounded-lg bg-background"
-                value={year}
-                onChange={(e) => setYear(Number(e.target.value))}
+              <Label htmlFor="strategy-year">Year</Label>
+              <Select
+                value={String(year)}
+                onValueChange={(v) => setYear(Number(v))}
               >
-                {[currentYear, currentYear - 1, currentYear - 2].map((y) => (
-                  <option key={y} value={y}>{y}</option>
-                ))}
-              </select>
+                <SelectTrigger id="strategy-year">
+                  <SelectValue placeholder="Select year..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {[currentYear, currentYear - 1, currentYear - 2].map((y) => (
+                    <SelectItem key={y} value={String(y)}>
+                      {y}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Race</label>
-              <select
-                className="w-full p-2 border rounded-lg bg-background"
-                value={race}
-                onChange={(e) => setRace(Number(e.target.value))}
+              <Label htmlFor="strategy-race">Race</Label>
+              <Select
+                value={String(race)}
+                onValueChange={(v) => setRace(Number(v))}
               >
-                {scheduleData?.races.map((r: any) => (
-                  <option key={r.round} value={r.round}>
-                    Round {r.round}: {r.raceName}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger id="strategy-race">
+                  <SelectValue placeholder="Select race..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {scheduleData?.races.map((r: any) => (
+                    <SelectItem key={r.round} value={String(r.round)}>
+                      Round {r.round}: {r.raceName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
-          <Button onClick={handleAnalyze} disabled={isLoading} className="w-full">
+          <Button
+            onClick={handleAnalyze}
+            disabled={isLoading}
+            className="w-full"
+          >
             <Gauge className="h-4 w-4 mr-2" />
             Analyze Strategy
           </Button>
@@ -114,23 +148,38 @@ export default function StrategyPage() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
                   <p className="text-sm text-muted-foreground">Total Drivers</p>
-                  <p className="text-2xl font-bold">{strategyData.summary.total_drivers}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Fastest Compound</p>
-                  <p className="text-2xl font-bold">{strategyData.summary.fastest_compound}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Strategy Types</p>
                   <p className="text-2xl font-bold">
-                    {Object.keys(strategyData.summary.strategy_distribution).length}
+                    {strategyData.summary.total_drivers}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">
+                    Fastest Compound
+                  </p>
+                  <p className="text-2xl font-bold">
+                    {strategyData.summary.fastest_compound}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">
+                    Strategy Types
+                  </p>
+                  <p className="text-2xl font-bold">
+                    {
+                      Object.keys(strategyData.summary.strategy_distribution)
+                        .length
+                    }
                   </p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Most Common</p>
                   <p className="text-xl font-bold">
-                    {Object.entries(strategyData.summary.strategy_distribution)
-                      .sort(([,a]: any, [,b]: any) => b - a)[0]?.[0]}-stop
+                    {
+                      Object.entries(
+                        strategyData.summary.strategy_distribution,
+                      ).sort(([, a]: any, [, b]: any) => b - a)[0]?.[0]
+                    }
+                    -stop
                   </p>
                 </div>
               </div>
@@ -145,37 +194,40 @@ export default function StrategyPage() {
                   <Award className="h-5 w-5" />
                   Most Successful Strategies
                 </CardTitle>
-                <CardDescription>Ranked by average finishing position</CardDescription>
+                <CardDescription>
+                  Ranked by average finishing position
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {strategyData.optimal_strategies.all_strategies.map((strategy: any, index: number) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-4 rounded-lg border"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className={`h-12 w-12 rounded-full flex items-center justify-center font-bold text-lg ${
-                          index === 0 ? 'bg-yellow-500 text-white' :
-                          index === 1 ? 'bg-gray-400 text-white' :
-                          index === 2 ? 'bg-orange-600 text-white' :
-                          'bg-primary text-primary-foreground'
-                        }`}>
-                          {index + 1}
+                  {strategyData.optimal_strategies.all_strategies.map(
+                    (strategy: any, index: number) => (
+                      <div
+                        key={strategy.strategy}
+                        className="flex items-center justify-between p-4 rounded-lg border"
+                      >
+                        <div className="flex items-center gap-4">
+                          <PositionBadge position={index + 1} size="lg" />
+                          <div>
+                            <p className="font-bold text-lg">
+                              {strategy.strategy}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              {strategy.drivers.join(", ")}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-bold text-lg">{strategy.strategy}</p>
+                        <div className="text-right">
+                          <p className="text-2xl font-bold">
+                            P{strategy.avg_finishing_position.toFixed(1)}
+                          </p>
                           <p className="text-sm text-muted-foreground">
-                            {strategy.drivers.join(", ")}
+                            Avg Position
                           </p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-2xl font-bold">P{strategy.avg_finishing_position.toFixed(1)}</p>
-                        <p className="text-sm text-muted-foreground">Avg Position</p>
-                      </div>
-                    </div>
-                  ))}
+                    ),
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -192,36 +244,45 @@ export default function StrategyPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {Object.values(strategyData.compound_performance).map((compound: any, index) => (
-                    <div key={index} className="p-4 rounded-lg border">
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="font-bold text-lg">{compound.compound}</h4>
-                        <span className="text-sm text-muted-foreground">
-                          {compound.total_laps} laps
-                        </span>
+                  {Object.values(strategyData.compound_performance).map(
+                    (compound: any) => (
+                      <div
+                        key={compound.compound}
+                        className="p-4 rounded-lg border"
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-bold text-lg">
+                            {compound.compound}
+                          </h4>
+                          <span className="text-sm text-muted-foreground">
+                            {compound.total_laps} laps
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-4 text-sm">
+                          <div>
+                            <p className="text-muted-foreground">
+                              Avg Lap Time
+                            </p>
+                            <p className="font-bold font-mono">
+                              {compound.avg_lap_time.toFixed(3)}s
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-muted-foreground">Fastest Lap</p>
+                            <p className="font-bold font-mono">
+                              {compound.fastest_lap.toFixed(3)}s
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-muted-foreground">Slowest Lap</p>
+                            <p className="font-bold font-mono">
+                              {compound.slowest_lap.toFixed(3)}s
+                            </p>
+                          </div>
+                        </div>
                       </div>
-                      <div className="grid grid-cols-3 gap-4 text-sm">
-                        <div>
-                          <p className="text-muted-foreground">Avg Lap Time</p>
-                          <p className="font-bold font-mono">
-                            {compound.avg_lap_time.toFixed(3)}s
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-muted-foreground">Fastest Lap</p>
-                          <p className="font-bold font-mono">
-                            {compound.fastest_lap.toFixed(3)}s
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-muted-foreground">Slowest Lap</p>
-                          <p className="font-bold font-mono">
-                            {compound.slowest_lap.toFixed(3)}s
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                    ),
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -235,19 +296,31 @@ export default function StrategyPage() {
                   <Clock className="h-5 w-5" />
                   Pit Stop Windows
                 </CardTitle>
-                <CardDescription>Most common laps for pit stops</CardDescription>
+                <CardDescription>
+                  Most common laps for pit stops
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {strategyData.pit_stop_timing.most_common_windows.map((window: any, index: number) => (
-                    <div key={index} className="flex items-center justify-between p-3 rounded-lg border">
-                      <span className="font-semibold">Lap {window.lap}</span>
-                      <div className="flex items-center gap-2">
-                        <div className="h-2 bg-primary rounded-full" style={{ width: `${window.count * 10}px` }}></div>
-                        <span className="font-bold">{window.count} stops</span>
+                  {strategyData.pit_stop_timing.most_common_windows.map(
+                    (window: any) => (
+                      <div
+                        key={window.lap}
+                        className="flex items-center justify-between p-3 rounded-lg border"
+                      >
+                        <span className="font-semibold">Lap {window.lap}</span>
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="h-2 bg-primary rounded-full"
+                            style={{ width: `${window.count * 10}px` }}
+                          ></div>
+                          <span className="font-bold">
+                            {window.count} stops
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ),
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -260,26 +333,34 @@ export default function StrategyPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {strategyData.driver_strategies.map((driver: any, index: number) => (
-                  <div key={index} className="p-3 rounded-lg border">
+                {strategyData.driver_strategies.map((driver: any) => (
+                  <div key={driver.driver} className="p-3 rounded-lg border">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-3">
-                        <span className="font-bold text-lg">{driver.driver}</span>
+                        <span className="font-bold text-lg">
+                          {driver.driver}
+                        </span>
                         <span className="text-sm text-muted-foreground">
                           {driver.strategy_name}
                         </span>
                       </div>
-                      <span className="font-bold">{driver.total_laps} laps</span>
+                      <span className="font-bold">
+                        {driver.total_laps} laps
+                      </span>
                     </div>
                     <div className="flex gap-2 mt-2">
-                      {driver.stints.map((stint: any, stintIndex: number) => (
+                      {driver.stints.map((stint: any) => (
                         <div
-                          key={stintIndex}
+                          key={`${driver.driver}-${stint.stint}`}
                           className="flex-1 p-2 rounded bg-secondary text-center"
                           title={`Stint ${stint.stint}: ${stint.compound}`}
                         >
-                          <p className="text-xs font-semibold">{stint.compound}</p>
-                          <p className="text-xs text-muted-foreground">{stint.num_laps} laps</p>
+                          <p className="text-xs font-semibold">
+                            {stint.compound}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {stint.num_laps} laps
+                          </p>
                         </div>
                       ))}
                     </div>
@@ -293,4 +374,3 @@ export default function StrategyPage() {
     </div>
   );
 }
-

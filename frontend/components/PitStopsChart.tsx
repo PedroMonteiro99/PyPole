@@ -13,7 +13,7 @@ export function PitStopsChart({
   stints,
   maxLaps,
   finalPositions,
-}: PitStopsChartProps) {
+}: Readonly<PitStopsChartProps>) {
   // Merge consecutive stints with the same compound
   interface MergedStint {
     driver: string;
@@ -25,30 +25,33 @@ export function PitStopsChart({
 
   // Group stints by driver and merge consecutive stints with same compound
   const { driverStints, sortedDrivers } = useMemo(() => {
-    const grouped = stints.reduce((acc, stint) => {
-      if (!acc[stint.driver]) {
-        acc[stint.driver] = [];
-      }
-      acc[stint.driver].push(stint);
-      return acc;
-    }, {} as Record<string, StintData[]>);
+    const grouped = stints.reduce(
+      (acc, stint) => {
+        if (!acc[stint.driver]) {
+          acc[stint.driver] = [];
+        }
+        acc[stint.driver].push(stint);
+        return acc;
+      },
+      {} as Record<string, StintData[]>,
+    );
 
     // For each driver, merge consecutive stints with same compound
     const merged: Record<string, MergedStint[]> = {};
 
     Object.keys(grouped).forEach((driver) => {
-      const driverStintsList = grouped[driver].sort(
-        (a, b) => a.start_lap - b.start_lap
+      const driverStintsList = grouped[driver].toSorted(
+        (a, b) => a.start_lap - b.start_lap,
       );
       const mergedStints: MergedStint[] = [];
 
       driverStintsList.forEach((stint) => {
-        const lastMerged = mergedStints[mergedStints.length - 1];
+        const lastMerged = mergedStints.at(-1);
 
         // Check if we can merge with the previous stint
         if (
-          lastMerged &&
-          lastMerged.compound === stint.compound &&
+          lastMerged?.compound === stint.compound &&
+          lastMerged?.end_lap !== undefined &&
           lastMerged.end_lap + 1 === stint.start_lap
         ) {
           // Merge with previous stint
@@ -74,7 +77,7 @@ export function PitStopsChart({
 
     if (finalPositions && finalPositions.length > 0) {
       const positionMap = new Map(
-        finalPositions.map((fp) => [fp.driver, fp.position])
+        finalPositions.map((fp) => [fp.driver, fp.position]),
       );
       sorted = sorted.sort((a, b) => {
         const posA = positionMap.get(a) || 999;
@@ -82,7 +85,7 @@ export function PitStopsChart({
         return posA - posB;
       });
     } else {
-      sorted = sorted.sort();
+      sorted = sorted.toSorted((a, b) => a.localeCompare(b));
     }
 
     return { driverStints: merged, sortedDrivers: sorted };
@@ -172,16 +175,16 @@ export function PitStopsChart({
       <div className="space-y-0 bg-card rounded-lg border p-4">
         {/* Header Row */}
         <div className="flex items-center mb-4 pb-2 border-b">
-          <div className="w-16 flex-shrink-0 text-xs font-bold text-muted-foreground uppercase">
+          <div className="w-16 shrink-0 text-xs font-bold text-muted-foreground uppercase">
             Pos
           </div>
-          <div className="w-20 flex-shrink-0 text-xs font-bold text-muted-foreground uppercase">
+          <div className="w-20 shrink-0 text-xs font-bold text-muted-foreground uppercase">
             Driver
           </div>
           <div className="flex-1 text-xs font-bold text-muted-foreground uppercase text-center">
             Tire Strategy
           </div>
-          <div className="w-16 flex-shrink-0 text-xs font-bold text-muted-foreground text-right uppercase">
+          <div className="w-16 shrink-0 text-xs font-bold text-muted-foreground text-right uppercase">
             Stops
           </div>
         </div>
@@ -208,14 +211,14 @@ export function PitStopsChart({
                 className="flex items-center group hover:bg-muted/50 transition-colors py-1"
               >
                 {/* Position */}
-                <div className="w-16 flex-shrink-0 pr-2">
+                <div className="w-16 shrink-0 pr-2">
                   <span className="text-xs font-bold text-muted-foreground">
                     {isRetired ? "DNF" : `P${driverPosition}`}
                   </span>
                 </div>
 
                 {/* Driver Code */}
-                <div className="w-20 flex-shrink-0 pr-3">
+                <div className="w-20 shrink-0 pr-3">
                   <span className="text-sm font-bold text-foreground">
                     {driver}
                   </span>
@@ -247,7 +250,7 @@ export function PitStopsChart({
                       >
                         {/* Compound separator */}
                         {stintIndex < driverStintsList.length - 1 && (
-                          <div className="absolute right-0 top-0 h-full w-[2px] bg-background/80" />
+                          <div className="absolute right-0 top-0 h-full w-0.5 bg-background/80" />
                         )}
 
                         {/* Lap count */}
@@ -269,7 +272,7 @@ export function PitStopsChart({
                           </div>
                           <div className="text-[11px] font-semibold mt-1">
                             {stint.num_laps} lap
-                            {stint.num_laps !== 1 ? "s" : ""}
+                            {stint.num_laps === 1 ? "" : "s"}
                           </div>
                           {isRetired &&
                             stintIndex === driverStintsList.length - 1 && (
@@ -284,7 +287,7 @@ export function PitStopsChart({
                 </div>
 
                 {/* Pit Stop Count */}
-                <div className="w-16 flex-shrink-0 text-center">
+                <div className="w-16 shrink-0 text-center">
                   <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-muted text-foreground text-sm font-bold">
                     {pitStops}
                   </span>
@@ -305,7 +308,7 @@ export function PitStopsChart({
           <span className="font-semibold">Total Pit Stops:</span>{" "}
           {Object.values(driverStints).reduce(
             (total, stints) => total + stints.length - 1,
-            0
+            0,
           )}
         </div>
         <div>

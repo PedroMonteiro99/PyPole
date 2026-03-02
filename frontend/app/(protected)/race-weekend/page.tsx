@@ -1,13 +1,20 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { PositionBadge } from "@/components/PositionBadge";
+import { TeamBadge } from "@/components/TeamBadge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import api from "@/lib/api";
-import { getTeamColor } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
-import { Calendar, MapPin, Trophy, Timer, Flag, Gauge } from "lucide-react";
 import { format } from "date-fns";
+import { Calendar, Flag, Gauge, MapPin, Trophy } from "lucide-react";
 
 interface RaceWeekendData {
   year: number;
@@ -55,8 +62,6 @@ export default function RaceWeekendPage() {
   }
 
   const race = weekendData.race_info;
-  const isUpcoming = weekendData.status === "upcoming";
-  const isInProgress = weekendData.status === "in_progress";
   const isCompleted = weekendData.status === "completed";
 
   return (
@@ -73,7 +78,9 @@ export default function RaceWeekendPage() {
         <div className="flex items-center gap-4 text-muted-foreground">
           <div className="flex items-center gap-2">
             <MapPin className="h-4 w-4" />
-            <span>{race.Circuit.Location.locality}, {race.Circuit.Location.country}</span>
+            <span>
+              {race.Circuit.Location.locality}, {race.Circuit.Location.country}
+            </span>
           </div>
           <div className="flex items-center gap-2">
             <Calendar className="h-4 w-4" />
@@ -92,11 +99,16 @@ export default function RaceWeekendPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <p className="text-sm text-muted-foreground">Location</p>
-              <p className="font-medium">{race.Circuit.Location.locality}, {race.Circuit.Location.country}</p>
+              <p className="font-medium">
+                {race.Circuit.Location.locality},{" "}
+                {race.Circuit.Location.country}
+              </p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Coordinates</p>
-              <p className="font-mono text-sm">{race.Circuit.Location.lat}, {race.Circuit.Location.long}</p>
+              <p className="font-mono text-sm">
+                {race.Circuit.Location.lat}, {race.Circuit.Location.long}
+              </p>
             </div>
           </div>
         </CardContent>
@@ -110,20 +122,18 @@ export default function RaceWeekendPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {weekendData.sessions.map((session, index) => (
+            {weekendData.sessions.map((session) => (
               <div
-                key={index}
+                key={session.name}
                 className="flex items-center justify-between p-3 rounded-lg border"
               >
                 <div className="flex items-center gap-3">
-                  <div className={`h-10 w-10 rounded-full flex items-center justify-center ${
-                    session.type === 'race' ? 'bg-red-100 dark:bg-red-900' :
-                    session.type === 'qualifying' ? 'bg-yellow-100 dark:bg-yellow-900' :
-                    'bg-blue-100 dark:bg-blue-900'
-                  }`}>
-                    {session.type === 'race' ? <Trophy className="h-5 w-5" /> :
-                     session.type === 'qualifying' ? <Timer className="h-5 w-5" /> :
-                     <Flag className="h-5 w-5" />}
+                  <div className="h-10 w-10 rounded-full flex items-center justify-center bg-muted">
+                    {session.type === "race" ? (
+                      <Trophy className="h-5 w-5 text-primary" />
+                    ) : (
+                      <Flag className="h-5 w-5 text-muted-foreground" />
+                    )}
                   </div>
                   <div>
                     <p className="font-semibold">{session.name}</p>
@@ -153,38 +163,38 @@ export default function RaceWeekendPage() {
           </TabsList>
 
           <TabsContent value="qualifying" className="mt-4">
-            {weekendData.qualifying && weekendData.qualifying.QualifyingResults ? (
+            {weekendData.qualifying?.QualifyingResults ? (
               <Card>
                 <CardHeader>
                   <CardTitle>Qualifying Results</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                    {weekendData.qualifying.QualifyingResults.map((result: any) => (
-                      <div
-                        key={result.position}
-                        className="flex items-center gap-4 p-3 rounded-lg border"
-                      >
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold">
-                          {result.position}
-                        </div>
-                        <div className="flex-1">
-                          <p className="font-semibold">
-                            {result.Driver.givenName} {result.Driver.familyName}
-                          </p>
-                          <p className="text-sm">
-                            <span className={`inline-block px-2 py-0.5 rounded text-xs ${getTeamColor(result.Constructor.name)}`}>
-                              {result.Constructor.name}
-                            </span>
-                          </p>
-                        </div>
-                        {result.Q3 && (
-                          <div className="font-mono text-lg font-bold">
-                            {result.Q3}
+                    {weekendData.qualifying.QualifyingResults.map(
+                      (result: any) => (
+                        <div
+                          key={result.position}
+                          className="flex items-center gap-4 p-3 rounded-lg border"
+                        >
+                          <PositionBadge position={result.position} size="md" />
+                          <div className="flex-1">
+                            <p className="font-semibold">
+                              {result.Driver.givenName}{" "}
+                              {result.Driver.familyName}
+                            </p>
+                            <TeamBadge
+                              teamName={result.Constructor.name}
+                              size="xs"
+                            />
                           </div>
-                        )}
-                      </div>
-                    ))}
+                          {result.Q3 && (
+                            <div className="font-mono text-lg font-bold">
+                              {result.Q3}
+                            </div>
+                          )}
+                        </div>
+                      ),
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -200,7 +210,7 @@ export default function RaceWeekendPage() {
           </TabsContent>
 
           <TabsContent value="race" className="mt-4">
-            {weekendData.results && weekendData.results.Results ? (
+            {weekendData.results?.Results ? (
               <Card>
                 <CardHeader>
                   <CardTitle>Race Results</CardTitle>
@@ -212,22 +222,16 @@ export default function RaceWeekendPage() {
                         key={result.position}
                         className="flex items-center gap-4 p-3 rounded-lg border"
                       >
-                        <div className={`flex h-10 w-10 items-center justify-center rounded-full font-bold ${
-                          result.position === '1' ? 'bg-yellow-500 text-white' :
-                          result.position === '2' ? 'bg-gray-400 text-white' :
-                          result.position === '3' ? 'bg-orange-600 text-white' :
-                          'bg-primary text-primary-foreground'
-                        }`}>
-                          {result.position}
-                        </div>
+                        <PositionBadge position={result.position} size="md" />
                         <div className="flex-1">
                           <p className="font-semibold">
                             {result.Driver.givenName} {result.Driver.familyName}
                           </p>
                           <div className="flex items-center gap-2">
-                            <span className={`inline-block px-2 py-0.5 rounded text-xs ${getTeamColor(result.Constructor.name)}`}>
-                              {result.Constructor.name}
-                            </span>
+                            <TeamBadge
+                              teamName={result.Constructor.name}
+                              size="xs"
+                            />
                             <span className="text-xs text-muted-foreground">
                               Grid: {result.grid}
                             </span>
@@ -270,7 +274,9 @@ export default function RaceWeekendPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-2">
-                      <p className="text-2xl font-bold">{weekendData.fastest_laps.race.driver}</p>
+                      <p className="text-2xl font-bold">
+                        {weekendData.fastest_laps.race.driver}
+                      </p>
                       <p className="text-3xl font-mono font-bold text-primary">
                         {weekendData.fastest_laps.race.lap_time}
                       </p>
@@ -292,8 +298,12 @@ export default function RaceWeekendPage() {
                     <div className="space-y-4">
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <p className="text-sm text-muted-foreground">Total Pit Stops</p>
-                          <p className="text-2xl font-bold">{weekendData.pit_stops.total_stops}</p>
+                          <p className="text-sm text-muted-foreground">
+                            Total Pit Stops
+                          </p>
+                          <p className="text-2xl font-bold">
+                            {weekendData.pit_stops.total_stops}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -307,4 +317,3 @@ export default function RaceWeekendPage() {
     </div>
   );
 }
-

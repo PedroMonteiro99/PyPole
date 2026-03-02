@@ -1,12 +1,12 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { TeamBadge } from "@/components/TeamBadge";
+import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import api from "@/lib/api";
-import { getTeamColor } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
-import { Users, Trophy, Building2 } from "lucide-react";
+import { Building2, Users } from "lucide-react";
 import Link from "next/link";
 
 export default function DriversPage() {
@@ -51,8 +51,8 @@ export default function DriversPage() {
         <TabsContent value="drivers" className="mt-6">
           {driversLoading ? (
             <div className="grid gap-4">
-              {[...Array(10)].map((_, i) => (
-                <Skeleton key={i} className="h-24 w-full" />
+              {Array.from({ length: 10 }, (_, i) => i).map((i) => (
+                <Skeleton key={`skel-driver-${i}`} className="h-24 w-full" />
               ))}
             </div>
           ) : (
@@ -72,14 +72,17 @@ export default function DriversPage() {
                           <div>
                             <h3 className="text-xl font-bold">{driver.name}</h3>
                             <p className="text-sm">
-                              <span className={`inline-block px-2 py-1 rounded ${getTeamColor(driver.team || "")}`}>
-                                {driver.team || "N/A"}
-                              </span>
+                              <TeamBadge
+                                teamName={driver.team || "N/A"}
+                                size="xs"
+                              />
                             </p>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="text-3xl font-bold">P{driver.position}</p>
+                          <p className="text-3xl font-bold">
+                            P{driver.position}
+                          </p>
                           <p className="text-sm text-muted-foreground">
                             {driver.points} points
                           </p>
@@ -97,8 +100,8 @@ export default function DriversPage() {
         <TabsContent value="teams" className="mt-6">
           {teamsLoading ? (
             <div className="grid gap-4">
-              {[...Array(10)].map((_, i) => (
-                <Skeleton key={i} className="h-24 w-full" />
+              {Array.from({ length: 10 }, (_, i) => i).map((i) => (
+                <Skeleton key={`skel-team-${i}`} className="h-24 w-full" />
               ))}
             </div>
           ) : (
@@ -112,8 +115,8 @@ export default function DriversPage() {
                     <CardContent className="p-6">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                          <div className={`h-16 w-16 rounded-full flex items-center justify-center ${getTeamColor(team.name)}`}>
-                            <Building2 className="h-8 w-8" />
+                          <div className="h-16 w-16 rounded-full flex items-center justify-center bg-muted">
+                            <Building2 className="h-8 w-8 text-muted-foreground" />
                           </div>
                           <div>
                             <h3 className="text-xl font-bold">{team.name}</h3>
@@ -140,4 +143,3 @@ export default function DriversPage() {
     </div>
   );
 }
-

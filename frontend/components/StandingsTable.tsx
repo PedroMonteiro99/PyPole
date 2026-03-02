@@ -1,6 +1,6 @@
 "use client";
 
-import { DriverStanding, ConstructorStanding } from "@/lib/types";
+import { TeamBadge } from "@/components/TeamBadge";
 import {
   Card,
   CardContent,
@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { getTeamColor } from "@/lib/utils";
+import { ConstructorStanding, DriverStanding } from "@/lib/types";
 
 interface DriverStandingsTableProps {
   standings: DriverStanding[];
@@ -23,7 +23,7 @@ interface ConstructorStandingsTableProps {
 export function DriverStandingsTable({
   standings,
   season,
-}: DriverStandingsTableProps) {
+}: Readonly<DriverStandingsTableProps>) {
   return (
     <Card>
       <CardHeader>
@@ -60,13 +60,10 @@ export function DriverStandingsTable({
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <span
-                      className={`inline-block px-2 py-1 rounded text-xs font-medium ${getTeamColor(
-                        standing.Constructors[0]?.name || ""
-                      )}`}
-                    >
-                      {standing.Constructors[0]?.name || "N/A"}
-                    </span>
+                    <TeamBadge
+                      teamName={standing.Constructors[0]?.name || "N/A"}
+                      size="sm"
+                    />
                   </td>
                   <td className="px-4 py-3 text-right font-bold">
                     {standing.points}
@@ -85,7 +82,7 @@ export function DriverStandingsTable({
 export function ConstructorStandingsTable({
   standings,
   season,
-}: ConstructorStandingsTableProps) {
+}: Readonly<ConstructorStandingsTableProps>) {
   return (
     <Card>
       <CardHeader>
@@ -111,13 +108,7 @@ export function ConstructorStandingsTable({
                 >
                   <td className="px-4 py-3 font-bold">{standing.position}</td>
                   <td className="px-4 py-3">
-                    <span
-                      className={`inline-block px-3 py-1.5 rounded font-medium ${getTeamColor(
-                        standing.Constructor.name
-                      )}`}
-                    >
-                      {standing.Constructor.name}
-                    </span>
+                    <TeamBadge teamName={standing.Constructor.name} size="sm" />
                   </td>
                   <td className="px-4 py-3 text-right font-bold">
                     {standing.points}
@@ -132,4 +123,3 @@ export function ConstructorStandingsTable({
     </Card>
   );
 }
-

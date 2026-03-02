@@ -1,19 +1,32 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { TeamBadge } from "@/components/TeamBadge";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import api from "@/lib/api";
-import { getTeamColor } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
-import { GitCompare, Trophy, TrendingUp, Target } from "lucide-react";
+import { GitCompare, Trophy } from "lucide-react";
 import { useState } from "react";
 
 export default function ComparisonPage() {
   const [driver1, setDriver1] = useState("");
   const [driver2, setDriver2] = useState("");
-  const [compareMode, setCompareMode] = useState<"season" | "race">("season");
-  const [season, setSeason] = useState(new Date().getFullYear());
+  const season = new Date().getFullYear();
 
   // Get all drivers for selection
   const { data: driversData } = useQuery({
@@ -25,12 +38,16 @@ export default function ComparisonPage() {
   });
 
   // Compare drivers
-  const { data: comparisonData, isLoading: isComparing, refetch } = useQuery({
+  const {
+    data: comparisonData,
+    isLoading: isComparing,
+    refetch,
+  } = useQuery({
     queryKey: ["comparison", driver1, driver2, season],
     queryFn: async () => {
       if (!driver1 || !driver2) return null;
       const response = await api.get(
-        `/comparison/drivers/season?driver1=${driver1}&driver2=${driver2}&season=${season}`
+        `/comparison/drivers/season?driver1=${driver1}&driver2=${driver2}&season=${season}`,
       );
       return response.data;
     },
@@ -60,25 +77,27 @@ export default function ComparisonPage() {
       <Card>
         <CardHeader>
           <CardTitle>Select Drivers to Compare</CardTitle>
-          <CardDescription>Choose two drivers to see their head-to-head stats</CardDescription>
+          <CardDescription>
+            Choose two drivers to see their head-to-head stats
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Driver 1 */}
             <div className="space-y-2">
-              <label className="text-sm font-medium">Driver 1</label>
-              <select
-                className="w-full p-2 border rounded-lg bg-background"
-                value={driver1}
-                onChange={(e) => setDriver1(e.target.value)}
-              >
-                <option value="">Select driver...</option>
-                {driversData?.drivers.map((driver: any) => (
-                  <option key={driver.driver_id} value={driver.driver_id}>
-                    {driver.name} ({driver.code})
-                  </option>
-                ))}
-              </select>
+              <Label htmlFor="driver1-select">Driver 1</Label>
+              <Select value={driver1} onValueChange={setDriver1}>
+                <SelectTrigger id="driver1-select">
+                  <SelectValue placeholder="Select driver..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {driversData?.drivers.map((driver: any) => (
+                    <SelectItem key={driver.driver_id} value={driver.driver_id}>
+                      {driver.name} ({driver.code})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             {/* VS */}
@@ -90,19 +109,19 @@ export default function ComparisonPage() {
 
             {/* Driver 2 */}
             <div className="space-y-2">
-              <label className="text-sm font-medium">Driver 2</label>
-              <select
-                className="w-full p-2 border rounded-lg bg-background"
-                value={driver2}
-                onChange={(e) => setDriver2(e.target.value)}
-              >
-                <option value="">Select driver...</option>
-                {driversData?.drivers.map((driver: any) => (
-                  <option key={driver.driver_id} value={driver.driver_id}>
-                    {driver.name} ({driver.code})
-                  </option>
-                ))}
-              </select>
+              <Label htmlFor="driver2-select">Driver 2</Label>
+              <Select value={driver2} onValueChange={setDriver2}>
+                <SelectTrigger id="driver2-select">
+                  <SelectValue placeholder="Select driver..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {driversData?.drivers.map((driver: any) => (
+                    <SelectItem key={driver.driver_id} value={driver.driver_id}>
+                      {driver.name} ({driver.code})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
@@ -133,27 +152,38 @@ export default function ComparisonPage() {
             <Card>
               <CardHeader>
                 <CardTitle>
-                  {comparisonData.driver1.info.givenName} {comparisonData.driver1.info.familyName}
+                  {comparisonData.driver1.info.givenName}{" "}
+                  {comparisonData.driver1.info.familyName}
                 </CardTitle>
                 <CardDescription>
-                  <span className={`inline-block px-2 py-1 rounded ${getTeamColor(comparisonData.driver1.team?.name || "")}`}>
-                    {comparisonData.driver1.team?.name || "N/A"}
-                  </span>
+                  <TeamBadge
+                    teamName={comparisonData.driver1.team?.name || ""}
+                  />
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Championship Position</span>
-                    <span className="text-2xl font-bold">P{comparisonData.driver1.position}</span>
+                    <span className="text-sm text-muted-foreground">
+                      Championship Position
+                    </span>
+                    <span className="text-2xl font-bold">
+                      P{comparisonData.driver1.position}
+                    </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Points</span>
-                    <span className="text-xl font-bold">{comparisonData.driver1.points}</span>
+                    <span className="text-sm text-muted-foreground">
+                      Points
+                    </span>
+                    <span className="text-xl font-bold">
+                      {comparisonData.driver1.points}
+                    </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-muted-foreground">Wins</span>
-                    <span className="text-xl font-bold">{comparisonData.driver1.wins}</span>
+                    <span className="text-xl font-bold">
+                      {comparisonData.driver1.wins}
+                    </span>
                   </div>
                 </div>
               </CardContent>
@@ -163,27 +193,38 @@ export default function ComparisonPage() {
             <Card>
               <CardHeader>
                 <CardTitle>
-                  {comparisonData.driver2.info.givenName} {comparisonData.driver2.info.familyName}
+                  {comparisonData.driver2.info.givenName}{" "}
+                  {comparisonData.driver2.info.familyName}
                 </CardTitle>
                 <CardDescription>
-                  <span className={`inline-block px-2 py-1 rounded ${getTeamColor(comparisonData.driver2.team?.name || "")}`}>
-                    {comparisonData.driver2.team?.name || "N/A"}
-                  </span>
+                  <TeamBadge
+                    teamName={comparisonData.driver2.team?.name || ""}
+                  />
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Championship Position</span>
-                    <span className="text-2xl font-bold">P{comparisonData.driver2.position}</span>
+                    <span className="text-sm text-muted-foreground">
+                      Championship Position
+                    </span>
+                    <span className="text-2xl font-bold">
+                      P{comparisonData.driver2.position}
+                    </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Points</span>
-                    <span className="text-xl font-bold">{comparisonData.driver2.points}</span>
+                    <span className="text-sm text-muted-foreground">
+                      Points
+                    </span>
+                    <span className="text-xl font-bold">
+                      {comparisonData.driver2.points}
+                    </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-muted-foreground">Wins</span>
-                    <span className="text-xl font-bold">{comparisonData.driver2.wins}</span>
+                    <span className="text-xl font-bold">
+                      {comparisonData.driver2.wins}
+                    </span>
                   </div>
                 </div>
               </CardContent>
@@ -197,7 +238,9 @@ export default function ComparisonPage() {
                 <Trophy className="h-5 w-5" />
                 Head-to-Head Statistics
               </CardTitle>
-              <CardDescription>Direct comparison in races both drivers competed</CardDescription>
+              <CardDescription>
+                Direct comparison in races both drivers competed
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
@@ -205,19 +248,25 @@ export default function ComparisonPage() {
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm text-muted-foreground">
                     <span>Races Compared</span>
-                    <span className="font-bold">{comparisonData.head_to_head.races_compared}</span>
+                    <span className="font-bold">
+                      {comparisonData.head_to_head.races_compared}
+                    </span>
                   </div>
-                  
+
                   <div className="flex gap-2 h-8">
                     <div
                       className="bg-blue-500 rounded-l flex items-center justify-center text-white font-bold text-sm"
-                      style={{ width: `${comparisonData.head_to_head.driver1_percentage}%` }}
+                      style={{
+                        width: `${comparisonData.head_to_head.driver1_percentage}%`,
+                      }}
                     >
                       {comparisonData.head_to_head.driver1_wins}
                     </div>
                     <div
                       className="bg-red-500 rounded-r flex items-center justify-center text-white font-bold text-sm"
-                      style={{ width: `${comparisonData.head_to_head.driver2_percentage}%` }}
+                      style={{
+                        width: `${comparisonData.head_to_head.driver2_percentage}%`,
+                      }}
                     >
                       {comparisonData.head_to_head.driver2_wins}
                     </div>
@@ -225,10 +274,12 @@ export default function ComparisonPage() {
 
                   <div className="flex justify-between text-sm">
                     <span className="text-blue-500 font-semibold">
-                      {comparisonData.driver1.info.familyName}: {comparisonData.head_to_head.driver1_percentage}%
+                      {comparisonData.driver1.info.familyName}:{" "}
+                      {comparisonData.head_to_head.driver1_percentage}%
                     </span>
                     <span className="text-red-500 font-semibold">
-                      {comparisonData.driver2.info.familyName}: {comparisonData.head_to_head.driver2_percentage}%
+                      {comparisonData.driver2.info.familyName}:{" "}
+                      {comparisonData.head_to_head.driver2_percentage}%
                     </span>
                   </div>
                 </div>
@@ -269,31 +320,44 @@ export default function ComparisonPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {comparisonData.race_by_race.map((race: any, index: number) => (
-                  <div key={index} className="p-3 rounded-lg border">
+                {comparisonData.race_by_race.map((race: any) => (
+                  <div
+                    key={`${race.round}-${race.race}`}
+                    className="p-3 rounded-lg border"
+                  >
                     <div className="flex items-center justify-between mb-2">
                       <p className="font-semibold">{race.race}</p>
-                      <span className="text-xs text-muted-foreground">Round {race.round}</span>
+                      <span className="text-xs text-muted-foreground">
+                        Round {race.round}
+                      </span>
                     </div>
                     <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div className={`p-2 rounded ${race.winner === comparisonData.driver1.id ? 'bg-blue-100 dark:bg-blue-900' : ''}`}>
+                      <div
+                        className={`p-2 rounded ${race.winner === comparisonData.driver1.id ? "bg-blue-100 dark:bg-blue-900" : ""}`}
+                      >
                         <div className="flex justify-between">
                           <span className="font-semibold">
                             {comparisonData.driver1.info.familyName}
                           </span>
-                          <span className="font-bold">P{race.driver1.position}</span>
+                          <span className="font-bold">
+                            P{race.driver1.position}
+                          </span>
                         </div>
                         <div className="flex justify-between text-xs text-muted-foreground">
                           <span>Grid: {race.driver1.grid}</span>
                           <span>{race.driver1.points} pts</span>
                         </div>
                       </div>
-                      <div className={`p-2 rounded ${race.winner === comparisonData.driver2.id ? 'bg-red-100 dark:bg-red-900' : ''}`}>
+                      <div
+                        className={`p-2 rounded ${race.winner === comparisonData.driver2.id ? "bg-red-100 dark:bg-red-900" : ""}`}
+                      >
                         <div className="flex justify-between">
                           <span className="font-semibold">
                             {comparisonData.driver2.info.familyName}
                           </span>
-                          <span className="font-bold">P{race.driver2.position}</span>
+                          <span className="font-bold">
+                            P{race.driver2.position}
+                          </span>
                         </div>
                         <div className="flex justify-between text-xs text-muted-foreground">
                           <span>Grid: {race.driver2.grid}</span>
@@ -311,4 +375,3 @@ export default function ComparisonPage() {
     </div>
   );
 }
-

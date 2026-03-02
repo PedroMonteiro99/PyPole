@@ -1,13 +1,27 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { PositionBadge } from "@/components/PositionBadge";
+import { TeamBadge } from "@/components/TeamBadge";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import api from "@/lib/api";
-import { getTeamColor } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
-import { TrendingUp, Trophy, Brain, Target, Award } from "lucide-react";
+import { Award, Brain, Target, TrendingUp, Trophy } from "lucide-react";
 import { useState } from "react";
 
 export default function PredictorPage() {
@@ -15,7 +29,6 @@ export default function PredictorPage() {
   const [year, setYear] = useState(currentYear);
   const [round, setRound] = useState<number>(1);
   const [predictions, setPredictions] = useState<any[]>([]);
-  const [showScore, setShowScore] = useState(false);
 
   // Get race schedule
   const { data: scheduleData } = useQuery({
@@ -27,7 +40,11 @@ export default function PredictorPage() {
   });
 
   // Get prediction template
-  const { data: templateData, isLoading: templateLoading, refetch: refetchTemplate } = useQuery({
+  const {
+    data: templateData,
+    isLoading: templateLoading,
+    refetch: refetchTemplate,
+  } = useQuery({
     queryKey: ["predictor-template", year, round],
     queryFn: async () => {
       const response = await api.get(`/predictor/template/${year}/${round}`);
@@ -37,10 +54,16 @@ export default function PredictorPage() {
   });
 
   // Get AI prediction
-  const { data: aiPrediction, isLoading: aiLoading, refetch: refetchAI } = useQuery({
+  const {
+    data: aiPrediction,
+    isLoading: aiLoading,
+    refetch: refetchAI,
+  } = useQuery({
     queryKey: ["ai-prediction", year, round],
     queryFn: async () => {
-      const response = await api.get(`/predictor/ai-prediction/${year}/${round}`);
+      const response = await api.get(
+        `/predictor/ai-prediction/${year}/${round}`,
+      );
       return response.data;
     },
     enabled: false,
@@ -57,7 +80,6 @@ export default function PredictorPage() {
 
   const handleLoadTemplate = () => {
     refetchTemplate();
-    setShowScore(false);
     setPredictions([]);
   };
 
@@ -66,7 +88,7 @@ export default function PredictorPage() {
   };
 
   const handleUseAIPrediction = () => {
-    if (aiPrediction && aiPrediction.predictions) {
+    if (aiPrediction?.predictions) {
       const newPredictions = aiPrediction.predictions.map((p: any) => ({
         driver_id: p.driver_id,
         predicted_position: p.predicted_position,
@@ -76,13 +98,11 @@ export default function PredictorPage() {
   };
 
   const handlePositionChange = (driverId: string, position: number) => {
-    setPredictions(prev => {
-      const existing = prev.find(p => p.driver_id === driverId);
+    setPredictions((prev) => {
+      const existing = prev.find((p) => p.driver_id === driverId);
       if (existing) {
-        return prev.map(p => 
-          p.driver_id === driverId 
-            ? { ...p, predicted_position: position }
-            : p
+        return prev.map((p) =>
+          p.driver_id === driverId ? { ...p, predicted_position: position } : p,
         );
       } else {
         return [...prev, { driver_id: driverId, predicted_position: position }];
@@ -92,9 +112,7 @@ export default function PredictorPage() {
 
   const handleSubmit = async () => {
     try {
-      const response = await api.post(`/predictor/score/${year}/${round}`, predictions);
-      setShowScore(true);
-      // You could store the score data here
+      await api.post(`/predictor/score/${year}/${round}`, predictions);
     } catch (error) {
       console.error("Failed to submit predictions:", error);
     }
@@ -126,40 +144,56 @@ export default function PredictorPage() {
           <Card>
             <CardHeader>
               <CardTitle>Select Race</CardTitle>
-              <CardDescription>Choose a race to make your predictions</CardDescription>
+              <CardDescription>
+                Choose a race to make your predictions
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Year</label>
-                  <select
-                    className="w-full p-2 border rounded-lg bg-background"
-                    value={year}
-                    onChange={(e) => setYear(Number(e.target.value))}
+                  <Label htmlFor="predict-year">Year</Label>
+                  <Select
+                    value={String(year)}
+                    onValueChange={(v) => setYear(Number(v))}
                   >
-                    {[currentYear, currentYear - 1].map((y) => (
-                      <option key={y} value={y}>{y}</option>
-                    ))}
-                  </select>
+                    <SelectTrigger id="predict-year">
+                      <SelectValue placeholder="Select year..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[currentYear, currentYear - 1].map((y) => (
+                        <SelectItem key={y} value={String(y)}>
+                          {y}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Race</label>
-                  <select
-                    className="w-full p-2 border rounded-lg bg-background"
-                    value={round}
-                    onChange={(e) => setRound(Number(e.target.value))}
+                  <Label htmlFor="predict-race">Race</Label>
+                  <Select
+                    value={String(round)}
+                    onValueChange={(v) => setRound(Number(v))}
                   >
-                    {scheduleData?.races.map((r: any) => (
-                      <option key={r.round} value={r.round}>
-                        Round {r.round}: {r.raceName}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger id="predict-race">
+                      <SelectValue placeholder="Select race..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {scheduleData?.races.map((r: any) => (
+                        <SelectItem key={r.round} value={String(r.round)}>
+                          Round {r.round}: {r.raceName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
-              <Button onClick={handleLoadTemplate} disabled={templateLoading} className="w-full">
+              <Button
+                onClick={handleLoadTemplate}
+                disabled={templateLoading}
+                className="w-full"
+              >
                 <Target className="h-4 w-4 mr-2" />
                 Load Race Template
               </Button>
@@ -168,65 +202,77 @@ export default function PredictorPage() {
 
           {/* Prediction Form */}
           {templateData && (
-            <>
-              <Card>
-                <CardHeader>
-                  <CardTitle>{templateData.race.raceName}</CardTitle>
-                  <CardDescription>
-                    {templateData.race.Circuit.circuitName} • 
-                    {templateData.race.Circuit.Location.locality}, {templateData.race.Circuit.Location.country}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Drag or select positions for each driver:
-                    </p>
-                    {templateData.drivers.map((driver: any) => (
-                      <div key={driver.driver_id} className="flex items-center justify-between p-3 rounded-lg border">
-                        <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">
-                            {driver.code}
-                          </div>
-                          <div>
-                            <p className="font-semibold">{driver.name}</p>
-                            <p className="text-sm">
-                              <span className={`inline-block px-2 py-0.5 rounded text-xs ${getTeamColor(driver.team || "")}`}>
-                                {driver.team || "N/A"}
-                              </span>
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          {driver.qualifying_position && (
-                            <span className="text-sm text-muted-foreground">
-                              Q: P{driver.qualifying_position}
-                            </span>
-                          )}
-                          <select
-                            className="p-2 border rounded bg-background w-20"
-                            value={predictions.find(p => p.driver_id === driver.driver_id)?.predicted_position || ""}
-                            onChange={(e) => handlePositionChange(driver.driver_id, Number(e.target.value))}
-                          >
-                            <option value="">-</option>
-                            {[...Array(20)].map((_, i) => (
-                              <option key={i + 1} value={i + 1}>P{i + 1}</option>
-                            ))}
-                          </select>
+            <Card>
+              <CardHeader>
+                <CardTitle>{templateData.race.raceName}</CardTitle>
+                <CardDescription>
+                  {templateData.race.Circuit.circuitName} •
+                  {templateData.race.Circuit.Location.locality},{" "}
+                  {templateData.race.Circuit.Location.country}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Drag or select positions for each driver:
+                  </p>
+                  {templateData.drivers.map((driver: any) => (
+                    <div
+                      key={driver.driver_id}
+                      className="flex items-center justify-between p-3 rounded-lg border"
+                    >
+                      <div className="flex items-center gap-3">
+                        <PositionBadge
+                          position={driver.qualifying_position || 0}
+                          size="md"
+                        />
+                        <div>
+                          <p className="font-semibold">{driver.name}</p>
+                          <TeamBadge teamName={driver.team || ""} size="xs" />
                         </div>
                       </div>
-                    ))}
-                  </div>
+                      <div className="flex items-center gap-3">
+                        {driver.qualifying_position && (
+                          <span className="text-sm text-muted-foreground">
+                            Q: P{driver.qualifying_position}
+                          </span>
+                        )}
+                        <Select
+                          value={String(
+                            predictions.find(
+                              (p) => p.driver_id === driver.driver_id,
+                            )?.predicted_position || "",
+                          )}
+                          onValueChange={(v) =>
+                            handlePositionChange(driver.driver_id, Number(v))
+                          }
+                        >
+                          <SelectTrigger className="w-24">
+                            <SelectValue placeholder="-" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Array.from({ length: 20 }, (_, i) => i + 1).map(
+                              (pos) => (
+                                <SelectItem key={pos} value={String(pos)}>
+                                  P{pos}
+                                </SelectItem>
+                              ),
+                            )}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  ))}
+                </div>
 
-                  {predictions.length >= 10 && (
-                    <Button onClick={handleSubmit} className="w-full mt-6">
-                      <Trophy className="h-4 w-4 mr-2" />
-                      Submit Predictions
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
-            </>
+                {predictions.length >= 10 && (
+                  <Button onClick={handleSubmit} className="w-full mt-6">
+                    <Trophy className="h-4 w-4 mr-2" />
+                    Submit Predictions
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
           )}
         </TabsContent>
 
@@ -245,35 +291,49 @@ export default function PredictorPage() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Year</label>
-                  <select
-                    className="w-full p-2 border rounded-lg bg-background"
-                    value={year}
-                    onChange={(e) => setYear(Number(e.target.value))}
+                  <Label htmlFor="ai-year">Year</Label>
+                  <Select
+                    value={String(year)}
+                    onValueChange={(v) => setYear(Number(v))}
                   >
-                    {[currentYear, currentYear - 1].map((y) => (
-                      <option key={y} value={y}>{y}</option>
-                    ))}
-                  </select>
+                    <SelectTrigger id="ai-year">
+                      <SelectValue placeholder="Select year..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[currentYear, currentYear - 1].map((y) => (
+                        <SelectItem key={y} value={String(y)}>
+                          {y}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Race</label>
-                  <select
-                    className="w-full p-2 border rounded-lg bg-background"
-                    value={round}
-                    onChange={(e) => setRound(Number(e.target.value))}
+                  <Label htmlFor="ai-race">Race</Label>
+                  <Select
+                    value={String(round)}
+                    onValueChange={(v) => setRound(Number(v))}
                   >
-                    {scheduleData?.races.map((r: any) => (
-                      <option key={r.round} value={r.round}>
-                        Round {r.round}: {r.raceName}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger id="ai-race">
+                      <SelectValue placeholder="Select race..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {scheduleData?.races.map((r: any) => (
+                        <SelectItem key={r.round} value={String(r.round)}>
+                          Round {r.round}: {r.raceName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
-              <Button onClick={handleLoadAI} disabled={aiLoading} className="w-full">
+              <Button
+                onClick={handleLoadAI}
+                disabled={aiLoading}
+                className="w-full"
+              >
                 <Brain className="h-4 w-4 mr-2" />
                 Generate AI Prediction
               </Button>
@@ -285,42 +345,48 @@ export default function PredictorPage() {
               <CardHeader>
                 <CardTitle>AI Prediction Results</CardTitle>
                 <CardDescription>
-                  Confidence: <span className="font-bold capitalize">{aiPrediction.confidence}</span>
+                  Confidence:{" "}
+                  <span className="font-bold capitalize">
+                    {aiPrediction.confidence}
+                  </span>
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2 mb-4">
                   {aiPrediction.predictions.map((pred: any) => (
-                    <div key={pred.driver_id} className="flex items-center justify-between p-3 rounded-lg border">
+                    <div
+                      key={pred.driver_id}
+                      className="flex items-center justify-between p-3 rounded-lg border"
+                    >
                       <div className="flex items-center gap-3">
-                        <div className={`h-10 w-10 rounded-full flex items-center justify-center font-bold ${
-                          pred.predicted_position === 1 ? 'bg-yellow-500 text-white' :
-                          pred.predicted_position === 2 ? 'bg-gray-400 text-white' :
-                          pred.predicted_position === 3 ? 'bg-orange-600 text-white' :
-                          'bg-primary text-primary-foreground'
-                        }`}>
-                          {pred.predicted_position}
-                        </div>
+                        <PositionBadge
+                          position={pred.predicted_position}
+                          size="md"
+                        />
                         <div>
                           <p className="font-semibold">{pred.name}</p>
-                          <p className="text-sm">
-                            <span className={`inline-block px-2 py-0.5 rounded text-xs ${getTeamColor(pred.team || "")}`}>
-                              {pred.team || "N/A"}
-                            </span>
-                          </p>
+                          <TeamBadge teamName={pred.team || ""} size="xs" />
                         </div>
                       </div>
                       <div className="text-right text-sm">
                         {pred.qualifying_position && (
-                          <p className="text-muted-foreground">Quali: P{pred.qualifying_position}</p>
+                          <p className="text-muted-foreground">
+                            Quali: P{pred.qualifying_position}
+                          </p>
                         )}
-                        <p className="text-muted-foreground">Championship: P{pred.championship_position}</p>
+                        <p className="text-muted-foreground">
+                          Championship: P{pred.championship_position}
+                        </p>
                       </div>
                     </div>
                   ))}
                 </div>
 
-                <Button onClick={handleUseAIPrediction} variant="outline" className="w-full">
+                <Button
+                  onClick={handleUseAIPrediction}
+                  variant="outline"
+                  className="w-full"
+                >
                   Use This as My Prediction
                 </Button>
               </CardContent>
@@ -345,12 +411,19 @@ export default function PredictorPage() {
                   <div>
                     <h3 className="font-bold mb-3">Position Accuracy Points</h3>
                     <div className="space-y-2">
-                      {Object.entries(rulesData.prediction_scoring).map(([key, value]: any) => (
-                        <div key={key} className="flex justify-between p-2 rounded border">
-                          <span className="capitalize">{key.replace(/_/g, " ")}</span>
-                          <span className="font-bold">{value} points</span>
-                        </div>
-                      ))}
+                      {Object.entries(rulesData.prediction_scoring).map(
+                        ([key, value]: any) => (
+                          <div
+                            key={key}
+                            className="flex justify-between p-2 rounded border"
+                          >
+                            <span className="capitalize">
+                              {key.replaceAll("_", " ")}
+                            </span>
+                            <span className="font-bold">{value} points</span>
+                          </div>
+                        ),
+                      )}
                     </div>
                   </div>
 
@@ -358,12 +431,19 @@ export default function PredictorPage() {
                   <div>
                     <h3 className="font-bold mb-3">Bonus Points</h3>
                     <div className="space-y-2">
-                      {Object.entries(rulesData.bonus_points).map(([key, value]: any) => (
-                        <div key={key} className="flex justify-between p-2 rounded border">
-                          <span className="capitalize">{key.replace(/_/g, " ")}</span>
-                          <span className="font-bold">+{value} points</span>
-                        </div>
-                      ))}
+                      {Object.entries(rulesData.bonus_points).map(
+                        ([key, value]: any) => (
+                          <div
+                            key={key}
+                            className="flex justify-between p-2 rounded border"
+                          >
+                            <span className="capitalize">
+                              {key.replaceAll("_", " ")}
+                            </span>
+                            <span className="font-bold">+{value} points</span>
+                          </div>
+                        ),
+                      )}
                     </div>
                   </div>
                 </div>
@@ -375,4 +455,3 @@ export default function PredictorPage() {
     </div>
   );
 }
-

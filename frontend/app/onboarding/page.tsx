@@ -1,6 +1,7 @@
 "use client";
 
 import { F1Logo } from "@/components/F1Logo";
+import { TeamBadge } from "@/components/TeamBadge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -49,16 +50,16 @@ export default function OnboardingPage() {
         // Try current season first
         let driversResponse = await api.get("/jolpica/standings/drivers");
         let constructorsResponse = await api.get(
-          "/jolpica/standings/constructors"
+          "/jolpica/standings/constructors",
         );
 
         // If empty (season hasn't started), try previous year
         if (driversResponse.data.standings.length === 0) {
           driversResponse = await api.get(
-            `/jolpica/standings/drivers?season=${currentYear - 1}`
+            `/jolpica/standings/drivers?season=${currentYear - 1}`,
           );
           constructorsResponse = await api.get(
-            `/jolpica/standings/constructors?season=${currentYear - 1}`
+            `/jolpica/standings/constructors?season=${currentYear - 1}`,
           );
         }
 
@@ -131,16 +132,7 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center p-4 relative"
-      style={{
-        backgroundImage:
-          'url("https://images.unsplash.com/photo-1563899522385-cc0ed4a4d1e6?q=80&w=2070&auto=format&fit=crop")',
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-      }}
-    >
+    <div className="onboarding-bg min-h-screen flex items-center justify-center p-4 relative">
       {/* Dark overlay */}
       <div className="absolute inset-0 bg-black/70" />
 
@@ -211,13 +203,7 @@ export default function OnboardingPage() {
                         <div className="text-sm text-muted-foreground flex items-center justify-between">
                           <span>{driver.code}</span>
                           {driver.team && (
-                            <span
-                              className={`text-xs px-1.5 py-0.5 rounded ${getTeamColor(
-                                driver.team
-                              )}`}
-                            >
-                              {driver.team}
-                            </span>
+                            <TeamBadge teamName={driver.team} size="xs" />
                           )}
                         </div>
                       </button>

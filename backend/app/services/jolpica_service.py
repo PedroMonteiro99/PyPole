@@ -112,7 +112,9 @@ class JolpicaService:
                 )
                 return first_race
         except Exception as e:
-            logger.warning("failed_to_fetch_next_season_schedule", season=next_season, error=str(e))
+            logger.warning(
+                "failed_to_fetch_next_season_schedule", season=current_season + 1, error=str(e)
+            )
 
         return None
 

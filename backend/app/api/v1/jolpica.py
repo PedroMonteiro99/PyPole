@@ -2,11 +2,23 @@
 
 from typing import Any, List, Optional
 
+from app.services.jolpica_service import jolpica_service
 from fastapi import APIRouter, HTTPException, Query
 
-from app.services.jolpica_service import jolpica_service
-
 router = APIRouter()
+
+
+@router.get("/schedule")
+async def get_schedule(
+    season: Optional[int] = Query(None, description="Season year (defaults to current)"),
+) -> Any:
+    """Get race schedule for a season (query param)"""
+    try:
+        schedule = await jolpica_service.get_schedule(season)
+        display_season = season or await jolpica_service.get_current_season()
+        return {"season": display_season, "races": schedule}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch schedule: {str(e)}")
 
 
 @router.get("/schedule/current")
