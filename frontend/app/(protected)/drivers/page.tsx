@@ -34,7 +34,7 @@ export default function DriversPage() {
       <div>
         <h1 className="text-4xl font-bold flex items-center gap-3">
           <Users className="h-10 w-10" />
-          Drivers & Teams
+          Drivers &amp; Teams
         </h1>
         <p className="text-muted-foreground mt-2">
           Explore detailed profiles and statistics
@@ -55,9 +55,24 @@ export default function DriversPage() {
                 <Skeleton key={`skel-driver-${i}`} className="h-24 w-full" />
               ))}
             </div>
-          ) : (
+          ) : null}
+          {!driversLoading && driversData?.drivers?.length === 0 ? (
+            <Card>
+              <CardContent className="py-16 text-center">
+                <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <p className="text-lg font-semibold">
+                  No driver data available
+                </p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Season data for {season} hasn&apos;t been published yet. Check
+                  back after the first race.
+                </p>
+              </CardContent>
+            </Card>
+          ) : null}
+          {!driversLoading && driversData?.drivers?.length ? (
             <div className="grid gap-4">
-              {driversData?.drivers.map((driver: any) => (
+              {driversData.drivers.map((driver: any) => (
                 <Link
                   key={driver.driver_id}
                   href={`/drivers/${driver.driver_id}`}
@@ -93,7 +108,7 @@ export default function DriversPage() {
                 </Link>
               ))}
             </div>
-          )}
+          ) : null}
         </TabsContent>
 
         {/* Teams Tab */}
@@ -104,9 +119,22 @@ export default function DriversPage() {
                 <Skeleton key={`skel-team-${i}`} className="h-24 w-full" />
               ))}
             </div>
-          ) : (
+          ) : null}
+          {!teamsLoading && teamsData?.teams?.length === 0 ? (
+            <Card>
+              <CardContent className="py-16 text-center">
+                <Building2 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <p className="text-lg font-semibold">No team data available</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Season data for {season} hasn&apos;t been published yet. Check
+                  back after the first race.
+                </p>
+              </CardContent>
+            </Card>
+          ) : null}
+          {!teamsLoading && teamsData?.teams?.length ? (
             <div className="grid gap-4">
-              {teamsData?.teams.map((team: any) => (
+              {teamsData.teams.map((team: any) => (
                 <Link
                   key={team.constructor_id}
                   href={`/teams/${team.constructor_id}`}
@@ -137,7 +165,7 @@ export default function DriversPage() {
                 </Link>
               ))}
             </div>
-          )}
+          ) : null}
         </TabsContent>
       </Tabs>
     </div>

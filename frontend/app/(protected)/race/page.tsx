@@ -4,7 +4,6 @@ import { PitStopsChart } from "@/components/PitStopsChart";
 import { PositionChart } from "@/components/PositionChart";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -21,10 +20,26 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
 export default function RaceAnalysisPage() {
-  const [year, setYear] = useState(new Date().getFullYear());
+  const currentYear = new Date().getFullYear();
+  const [year, setYear] = useState(currentYear);
   const [race, setRace] = useState(1);
   const [sessionType, setSessionType] = useState("R");
   const [isSubmitted, setIsSubmitted] = useState(false);
+
+  // Available years (2018 → current)
+  const availableYears = Array.from(
+    { length: currentYear - 2018 + 1 },
+    (_, i) => currentYear - i,
+  );
+
+  // Fetch schedule to populate round select
+  const { data: scheduleData } = useQuery({
+    queryKey: ["schedule", year],
+    queryFn: async () => {
+      const response = await api.get(`/jolpica/schedule?season=${year}`);
+      return response.data;
+    },
+  });
 
   const { data: lapsData, isLoading: lapsLoading } = useQuery({
     queryKey: ["laps", year, race, sessionType],
@@ -157,25 +172,51 @@ export default function RaceAnalysisPage() {
             <div className="grid gap-4 md:grid-cols-3">
               <div className="space-y-2">
                 <Label htmlFor="year">Year</Label>
-                <Input
-                  id="year"
-                  type="number"
-                  value={year}
-                  onChange={(e) => setYear(Number(e.target.value))}
-                  min={2018}
-                  max={new Date().getFullYear()}
-                />
+                <Select
+                  value={String(year)}
+                  onValueChange={(v) => {
+                    setYear(Number(v));
+                    setRace(1);
+                    setIsSubmitted(false);
+                  }}
+                >
+                  <SelectTrigger id="year">
+                    <SelectValue placeholder="Select year..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableYears.map((y) => (
+                      <SelectItem key={y} value={String(y)}>
+                        {y}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="race">Round</Label>
-                <Input
-                  id="race"
-                  type="number"
-                  value={race}
-                  onChange={(e) => setRace(Number(e.target.value))}
-                  min={1}
-                  max={24}
-                />
+                <Select
+                  value={String(race)}
+                  onValueChange={(v) => {
+                    setRace(Number(v));
+                    setIsSubmitted(false);
+                  }}
+                >
+                  <SelectTrigger id="race">
+                    <SelectValue placeholder="Select round..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {scheduleData?.races?.map((r: any) => (
+                      <SelectItem key={r.round} value={String(r.round)}>
+                        Round {r.round}: {r.raceName}
+                      </SelectItem>
+                    )) ??
+                      Array.from({ length: 24 }, (_, i) => i + 1).map((n) => (
+                        <SelectItem key={n} value={String(n)}>
+                          Round {n}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="session">Session</Label>

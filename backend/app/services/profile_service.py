@@ -57,11 +57,7 @@ class ProfileService:
                     results = await jolpica_service.get_race_results(season, round_num)
                     if results and "Results" in results:
                         driver_result = next(
-                            (
-                                r
-                                for r in results["Results"]
-                                if r["Driver"]["driverId"] == driver_id
-                            ),
+                            (r for r in results["Results"] if r["Driver"]["driverId"] == driver_id),
                             None,
                         )
 
@@ -76,15 +72,17 @@ class ProfileService:
 
                             total_points += points
 
-                            race_results.append({
-                                "race": race["raceName"],
-                                "round": round_num,
-                                "position": position,
-                                "grid": int(driver_result["grid"]),
-                                "points": points,
-                                "status": driver_result["status"],
-                                "fastest_lap": driver_result.get("FastestLap"),
-                            })
+                            race_results.append(
+                                {
+                                    "race": race["raceName"],
+                                    "round": round_num,
+                                    "position": position,
+                                    "grid": int(driver_result["grid"]),
+                                    "points": points,
+                                    "status": driver_result["status"],
+                                    "fastest_lap": driver_result.get("FastestLap"),
+                                }
+                            )
                 except Exception as e:
                     logger.debug(
                         "race_result_not_available",
@@ -103,7 +101,9 @@ class ProfileService:
                     "position": int(driver_standing["position"]),
                     "points": float(driver_standing["points"]),
                     "wins": int(driver_standing["wins"]),
-                    "team": driver_standing["Constructors"][0] if driver_standing["Constructors"] else None,
+                    "team": driver_standing["Constructors"][0]
+                    if driver_standing["Constructors"]
+                    else None,
                     "podiums": podiums,
                     "dnfs": dnfs,
                     "races_entered": len(race_results),
@@ -147,18 +147,12 @@ class ProfileService:
             # Get constructor standings
             standings = await jolpica_service.get_constructor_standings(season)
             team_standing = next(
-                (
-                    s
-                    for s in standings
-                    if s["Constructor"]["constructorId"] == constructor_id
-                ),
+                (s for s in standings if s["Constructor"]["constructorId"] == constructor_id),
                 None,
             )
 
             if not team_standing:
-                raise ValueError(
-                    f"Constructor {constructor_id} not found in {season} season"
-                )
+                raise ValueError(f"Constructor {constructor_id} not found in {season} season")
 
             # Get driver standings to find drivers for this team
             driver_standings = await jolpica_service.get_driver_standings(season)
@@ -194,12 +188,14 @@ class ProfileService:
                         ]
 
                         if team_results:
-                            race_results.append({
-                                "race": race["raceName"],
-                                "round": round_num,
-                                "results": team_results,
-                                "total_points": sum(r["points"] for r in team_results),
-                            })
+                            race_results.append(
+                                {
+                                    "race": race["raceName"],
+                                    "round": round_num,
+                                    "results": team_results,
+                                    "total_points": sum(r["points"] for r in team_results),
+                                }
+                            )
                 except Exception as e:
                     logger.debug(
                         "race_result_not_available",
@@ -234,9 +230,7 @@ class ProfileService:
             )
             raise
 
-    async def _get_career_stats(
-        self, driver_id: str, current_season: int
-    ) -> Dict[str, Any]:
+    async def _get_career_stats(self, driver_id: str, current_season: int) -> Dict[str, Any]:
         """Get career statistics for a driver (last 5 seasons)"""
         career_data = {
             "total_races": 0,
@@ -266,13 +260,17 @@ class ProfileService:
                     if position == 1:
                         career_data["championships"] += 1
 
-                    career_data["seasons"].append({
-                        "year": year,
-                        "position": position,
-                        "wins": wins,
-                        "points": points,
-                        "team": driver_standing["Constructors"][0]["name"] if driver_standing["Constructors"] else None,
-                    })
+                    career_data["seasons"].append(
+                        {
+                            "year": year,
+                            "position": position,
+                            "wins": wins,
+                            "points": points,
+                            "team": driver_standing["Constructors"][0]["name"]
+                            if driver_standing["Constructors"]
+                            else None,
+                        }
+                    )
 
             except Exception as e:
                 logger.debug(
@@ -285,12 +283,20 @@ class ProfileService:
         return career_data
 
     async def get_all_drivers(self, season: Optional[int] = None) -> List[Dict[str, Any]]:
-        """Get list of all drivers in a season"""
+        """Get list of all drivers in a season. Falls back to previous season if current has no data."""
         if season is None:
             season = await jolpica_service.get_current_season()
 
         try:
             standings = await jolpica_service.get_driver_standings(season)
+            # If current season has no standings yet, fall back to previous season
+            if not standings:
+                logger.info(
+                    "no_driver_standings_for_season_falling_back",
+                    season=season,
+                    fallback_season=season - 1,
+                )
+                standings = await jolpica_service.get_driver_standings(season - 1)
             return [
                 {
                     "driver_id": s["Driver"]["driverId"],
@@ -307,12 +313,20 @@ class ProfileService:
             raise
 
     async def get_all_teams(self, season: Optional[int] = None) -> List[Dict[str, Any]]:
-        """Get list of all teams in a season"""
+        """Get list of all teams in a season. Falls back to previous season if current has no data."""
         if season is None:
             season = await jolpica_service.get_current_season()
 
         try:
             standings = await jolpica_service.get_constructor_standings(season)
+            # If current season has no standings yet, fall back to previous season
+            if not standings:
+                logger.info(
+                    "no_constructor_standings_for_season_falling_back",
+                    season=season,
+                    fallback_season=season - 1,
+                )
+                standings = await jolpica_service.get_constructor_standings(season - 1)
             return [
                 {
                     "constructor_id": s["Constructor"]["constructorId"],
@@ -331,4 +345,3 @@ class ProfileService:
 
 # Singleton instance
 profile_service = ProfileService()
-

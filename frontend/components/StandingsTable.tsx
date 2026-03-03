@@ -43,34 +43,50 @@ export function DriverStandingsTable({
               </tr>
             </thead>
             <tbody>
-              {standings.map((standing) => (
-                <tr
-                  key={standing.Driver.driverId}
-                  className="border-b hover:bg-muted/50 transition-colors"
-                >
-                  <td className="px-4 py-3 font-bold">{standing.position}</td>
-                  <td className="px-4 py-3">
-                    <div>
-                      <div className="font-medium">
-                        {standing.Driver.givenName} {standing.Driver.familyName}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {standing.Driver.code}
-                      </div>
-                    </div>
+              {standings.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={5}
+                    className="px-4 py-12 text-center text-muted-foreground"
+                  >
+                    <p className="font-semibold">No standings available</p>
+                    <p className="text-sm mt-1">
+                      The {season} season hasn&apos;t produced any standings
+                      yet. Check back after Round 1.
+                    </p>
                   </td>
-                  <td className="px-4 py-3">
-                    <TeamBadge
-                      teamName={standing.Constructors[0]?.name || "N/A"}
-                      size="sm"
-                    />
-                  </td>
-                  <td className="px-4 py-3 text-right font-bold">
-                    {standing.points}
-                  </td>
-                  <td className="px-4 py-3 text-right">{standing.wins}</td>
                 </tr>
-              ))}
+              ) : (
+                standings.map((standing) => (
+                  <tr
+                    key={standing.Driver.driverId}
+                    className="border-b hover:bg-muted/50 transition-colors"
+                  >
+                    <td className="px-4 py-3 font-bold">{standing.position}</td>
+                    <td className="px-4 py-3">
+                      <div>
+                        <div className="font-medium">
+                          {standing.Driver.givenName}{" "}
+                          {standing.Driver.familyName}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {standing.Driver.code}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <TeamBadge
+                        teamName={standing.Constructors[0]?.name || "N/A"}
+                        size="sm"
+                      />
+                    </td>
+                    <td className="px-4 py-3 text-right font-bold">
+                      {standing.points}
+                    </td>
+                    <td className="px-4 py-3 text-right">{standing.wins}</td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -101,21 +117,39 @@ export function ConstructorStandingsTable({
               </tr>
             </thead>
             <tbody>
-              {standings.map((standing) => (
-                <tr
-                  key={standing.Constructor.constructorId}
-                  className="border-b hover:bg-muted/50 transition-colors"
-                >
-                  <td className="px-4 py-3 font-bold">{standing.position}</td>
-                  <td className="px-4 py-3">
-                    <TeamBadge teamName={standing.Constructor.name} size="sm" />
+              {standings.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={4}
+                    className="px-4 py-12 text-center text-muted-foreground"
+                  >
+                    <p className="font-semibold">No standings available</p>
+                    <p className="text-sm mt-1">
+                      The {season} season hasn&apos;t produced any standings
+                      yet. Check back after Round 1.
+                    </p>
                   </td>
-                  <td className="px-4 py-3 text-right font-bold">
-                    {standing.points}
-                  </td>
-                  <td className="px-4 py-3 text-right">{standing.wins}</td>
                 </tr>
-              ))}
+              ) : (
+                standings.map((standing) => (
+                  <tr
+                    key={standing.Constructor.constructorId}
+                    className="border-b hover:bg-muted/50 transition-colors"
+                  >
+                    <td className="px-4 py-3 font-bold">{standing.position}</td>
+                    <td className="px-4 py-3">
+                      <TeamBadge
+                        teamName={standing.Constructor.name}
+                        size="sm"
+                      />
+                    </td>
+                    <td className="px-4 py-3 text-right font-bold">
+                      {standing.points}
+                    </td>
+                    <td className="px-4 py-3 text-right">{standing.wins}</td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

@@ -144,7 +144,36 @@ export default function RaceWeekendPage() {
                 </div>
                 {session.time && (
                   <div className="text-right">
-                    <p className="font-mono font-semibold">{session.time}</p>
+                    <p className="font-mono font-semibold">
+                      {(() => {
+                        try {
+                          const dateStr = session.date
+                            ? `${session.date}T${session.time}`
+                            : session.time;
+                          const d = new Date(dateStr);
+                          return Number.isNaN(d.getTime())
+                            ? session.time
+                            : format(d, "HH:mm 'UTC'xxx");
+                        } catch {
+                          return session.time;
+                        }
+                      })()}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {(() => {
+                        try {
+                          const dateStr = session.date
+                            ? `${session.date}T${session.time}`
+                            : session.time;
+                          const d = new Date(dateStr);
+                          return Number.isNaN(d.getTime())
+                            ? ""
+                            : format(d, "h:mm a");
+                        } catch {
+                          return "";
+                        }
+                      })()}
+                    </p>
                   </div>
                 )}
               </div>

@@ -13,6 +13,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { useTeamTheme } from "@/hooks/useTeamTheme";
 import { api } from "@/lib/api";
+import { getTeamColor } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
 interface Driver {
@@ -170,12 +171,15 @@ export default function SettingsPage() {
                       key={team.constructorId}
                       type="button"
                       onClick={() => setSelectedTeam(team.name)}
-                      className={`p-2 rounded-lg border-2 transition-all text-sm text-center relative ${
+                      className={`p-2 rounded-lg border-2 transition-all text-sm text-center relative flex items-center justify-center gap-2 ${
                         selectedTeam === team.name
                           ? "border-primary ring-2 ring-primary ring-offset-0 z-10"
                           : "border-border hover:border-primary/50"
                       }`}
                     >
+                      <span
+                        className={`h-3 w-3 rounded-full shrink-0 ${getTeamColor(team.name)}`}
+                      />
                       {team.name}
                     </button>
                   ))
