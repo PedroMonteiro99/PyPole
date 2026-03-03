@@ -6,12 +6,14 @@ import { cn } from "@/lib/utils";
 import {
   BarChart3,
   Calendar,
+  Clock,
   Flag,
   Gauge,
   GitCompare,
   Home,
   LogOut,
   Menu,
+  Play,
   Settings,
   TrendingUp,
   Trophy,
@@ -32,6 +34,8 @@ const menuItems = [
   { href: "/comparison", label: "Compare", icon: GitCompare },
   { href: "/race", label: "Race Analysis", icon: BarChart3 },
   { href: "/strategy", label: "Strategy", icon: Gauge },
+  { href: "/replay", label: "Race Replay", icon: Play },
+  { href: "/timing", label: "Timing Tower", icon: Clock },
   { href: "/predictor", label: "Predictor", icon: TrendingUp },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
