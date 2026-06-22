@@ -8,7 +8,7 @@ package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.11"
-fastapi = "^0.137.0"
+fastapi = "^0.138.0"
 uvicorn = {extras = ["standard"], version = "^0.49.0"}
 pydantic = {extras = ["email"], version = "^2.9.0"}
 pydantic-settings = "^2.5.0"
@@ -28,10 +28,10 @@ python-dotenv = "^1.0.0"
 email-validator = "^2.1.0"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "9.1.0"
+pytest = "9.1.1"
 pytest-asyncio = "1.4.0"
 black = "26.5.1"
-ruff = "0.15.17"
+ruff = "0.15.18"
 mypy = "1.20.2"
 
 [build-system]
