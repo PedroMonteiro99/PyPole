@@ -7,8 +7,10 @@
   "reviewers": ["PedroMonteiro99"],
   "rebaseWhen": "conflicted",
   "semanticCommits": "enabled",
-  "dependencyDashboard": true,
-  "dependencyDashboardTitle": "📦 Dependency Dashboard",
+  "dependencyDashboard": {
+    "enabled": true,
+    "title": "📦 Dependency Dashboard"
+  },
   "packageRules": [
     {
       "description": "Backend (FastAPI) dependencies",
